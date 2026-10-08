@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import { createServer } from 'http'
 import { fileURLToPath } from 'url'
 import { authRouter } from './src/auth.js'
+import { attachWebSocket } from './src/ws.js'
 
 const PORT = process.env.PORT ?? 3000
 if (!process.env.JWT_SECRET) {
@@ -26,5 +27,6 @@ app.get('/{*splat}', (req, res, next) =>
 )
 
 const server = createServer(app)
+attachWebSocket(server)
 
 server.listen(PORT, () => console.log(`Serveur sur http://localhost:${PORT}`))
