@@ -12,4 +12,12 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
+    // En dev, Vite relaie l'API et le WebSocket vers Express : tout est sur la même
+    // origine, donc le cookie httpOnly est envoyé sans configuration CORS
+    server: {
+        proxy: {
+            '/api': 'http://localhost:3000',
+            '/ws': { target: 'ws://localhost:3000', ws: true },
+        },
+    },
 })
