@@ -2,7 +2,11 @@
 import { nextTick, ref, watch } from 'vue'
 import type { ChatMessage, User } from '@/types'
 
-const props = defineProps<{ messages: ChatMessage[]; meId: User['id'] | undefined }>()
+const props = defineProps<{
+    messages: ChatMessage[]
+    meId: User['id'] | undefined
+    placeholder?: string
+}>()
 const emit = defineEmits<{ send: [text: string] }>()
 
 const input = ref('')
@@ -35,7 +39,7 @@ watch(
             <li
                 v-for="(m, i) in messages"
                 :key="i"
-                :class="{ system: !m.from, me: m.from?.id === meId }"
+                :class="[m.variant, { system: !m.from, me: m.from?.id === meId }]"
             >
                 <template v-if="m.from"
                     ><strong>{{ m.from.username }}</strong> {{ m.text }}</template
@@ -47,7 +51,7 @@ watch(
             <input
                 v-model="input"
                 maxlength="200"
-                placeholder="Écris ta réponse…"
+                :placeholder="placeholder ?? 'Écris ta réponse…'"
                 aria-label="Message"
             />
         </form>
@@ -79,6 +83,16 @@ li:nth-child(odd) {
 li.system {
     font-style: italic;
     color: var(--text-muted);
+}
+li.success {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--success);
+}
+li.close {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--warning);
 }
 li.me strong {
     color: var(--accent);

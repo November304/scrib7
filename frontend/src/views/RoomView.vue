@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useRoomStore } from '@/stores/room'
@@ -8,6 +8,8 @@ import DrawingBoard from '@/components/DrawingBoard.vue'
 import DrawingToolbar from '@/components/DrawingToolbar.vue'
 import PlayerList from '@/components/PlayerList.vue'
 import ChatBox from '@/components/ChatBox.vue'
+import GameHeader from '@/components/GameHeader.vue'
+import GameOverlay from '@/components/GameOverlay.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,7 +38,7 @@ watch(() => route.params.code, enterFromRoute)
 function onKeydown(event: KeyboardEvent) {
     const target = event.target as HTMLElement
     if (target.tagName === 'INPUT') return
-    if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z' && room.canDraw) {
         event.preventDefault()
         room.undo()
     }
@@ -49,6 +51,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
     room.leave()
     window.removeEventListener('keydown', onKeydown)
+})
+
+const chatPlaceholder = computed(() => {
+    const game = room.game
+    if (game?.phase !== 'drawing') return 'Écris un message…'
+    if (room.isDrawer) return 'Seuls ceux qui ont trouvé te lisent'
+    if (game.word) return 'Bien joué ! Seuls ceux qui ont trouvé te lisent'
+    return 'Écris ta réponse…'
 })
 
 async function copyInvite() {
@@ -78,23 +88,47 @@ async function copyInvite() {
                     {{ copied ? 'Lien copié ✓' : "Copier le lien d'invitation" }}
                 </button>
             </div>
-            <PlayerList :players="room.players" :host-id="room.hostId" :me-id="auth.user?.id" />
+            <PlayerList
+                :players="room.players"
+                :host-id="room.hostId"
+                :me-id="auth.user?.id"
+                :game="room.game"
+            />
         </aside>
 
         <div class="stage">
             <p v-if="socket.status.value !== 'open'" class="reconnecting">Reconnexion en cours…</p>
-            <DrawingBoard
-                :strokes="room.strokes"
-                :color="color"
-                :width="width"
-                :disabled="socket.status.value !== 'open'"
-                @start="room.startStroke"
-                @points="room.sendPoints"
+            <GameHeader
+                v-if="room.game"
+                :game="room.game"
+                :deadline="room.deadline"
+                :players="room.players"
+                :is-host="room.isHost"
+                :is-drawer="room.isDrawer"
+                @start="room.startGame"
             />
+            <div class="board-wrap">
+                <DrawingBoard
+                    :strokes="room.strokes"
+                    :color="color"
+                    :width="width"
+                    :disabled="socket.status.value !== 'open' || !room.canDraw"
+                    @start="room.startStroke"
+                    @points="room.sendPoints"
+                />
+                <GameOverlay
+                    v-if="room.game"
+                    :game="room.game"
+                    :players="room.players"
+                    :is-drawer="room.isDrawer"
+                    @choose="room.chooseWord"
+                />
+            </div>
             <DrawingToolbar
+                v-if="room.canDraw"
                 v-model:color="color"
                 v-model:width="width"
-                :can-clear="room.isHost"
+                :can-clear="room.canClear"
                 @undo="room.undo"
                 @clear="room.clear"
             />
@@ -104,6 +138,7 @@ async function copyInvite() {
             class="chat"
             :messages="room.messages"
             :me-id="auth.user?.id"
+            :placeholder="chatPlaceholder"
             @send="room.sendChat"
         />
     </div>
@@ -125,6 +160,9 @@ async function copyInvite() {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+}
+.board-wrap {
+    position: relative;
 }
 .chat {
     height: min(640px, 80vh);

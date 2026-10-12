@@ -38,7 +38,7 @@ function leaveCurrentRoom(ws) {
 function joinRoom(ws, room) {
     if (ws.room !== room) leaveCurrentRoom(ws)
     room.addPlayer(ws.user, ws)
-    send(ws, { type: 'room:state', ...room.state() })
+    send(ws, { type: 'room:state', ...room.state(ws.user.id) })
     room.broadcast({ type: 'room:players', players: room.playersList(), hostId: room.hostId }, ws)
 }
 
@@ -65,6 +65,8 @@ const handlers = {
         if (typeof text !== 'string') return
         text = text.trim().slice(0, MAX_CHAT_LENGTH)
         if (!text) return
+        // Pendant le dessin, le jeu vérifie si c'est la bonne réponse
+        if (room.game.handleChat(ws.user, text)) return
         room.broadcast({
             type: 'chat',
             from: { id: ws.user.id, username: ws.user.username },
@@ -101,14 +103,30 @@ const handlers = {
     },
 
     'draw:clear'(ws, _msg, room) {
-        if (room.hostId !== ws.user.id) return
+        if (!room.canClear(ws.user.id)) return
         room.clear()
         room.broadcast({ type: 'draw:clear' })
+    },
+
+    'game:start'(ws, { rounds, drawTime }, room) {
+        room.game.start(ws.user.id, { rounds, drawTime })
+    },
+
+    'game:choose'(ws, { index }, room) {
+        room.game.choose(ws.user.id, index)
     },
 }
 
 // Messages qui n'ont de sens qu'une fois dans une salle
-const NEEDS_ROOM = new Set(['chat', 'draw:start', 'draw:points', 'draw:undo', 'draw:clear'])
+const NEEDS_ROOM = new Set([
+    'chat',
+    'draw:start',
+    'draw:points',
+    'draw:undo',
+    'draw:clear',
+    'game:start',
+    'game:choose',
+])
 
 export function attachWebSocket(server) {
     const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_MESSAGE_SIZE })

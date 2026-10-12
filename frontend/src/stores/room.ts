@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { socket } from '@/services/socket'
 import { useAuthStore } from '@/stores/auth'
-import type { ChatMessage, Player, Point, ServerMessage, Stroke, User } from '@/types'
+import type { ChatMessage, GameState, Player, Point, ServerMessage, Stroke, User } from '@/types'
 
 const MAX_MESSAGES = 200
 
@@ -15,8 +15,26 @@ export const useRoomStore = defineStore('room', () => {
     const strokes = ref<Stroke[]>([])
     const messages = ref<ChatMessage[]>([])
     const error = ref<{ code: string; message: string } | null>(null)
+    const game = ref<GameState | null>(null)
+    // Fin de la phase en heure locale : on convertit la durée restante envoyée par le serveur
+    // (pas d'heure absolue, pour ne pas dépendre de l'horloge du client)
+    const deadline = ref(0)
 
     const isHost = computed(() => auth.user != null && auth.user.id === hostId.value)
+    const isPlaying = computed(
+        () => game.value != null && !['lobby', 'gameEnd'].includes(game.value.phase),
+    )
+    const isDrawer = computed(() => auth.user != null && game.value?.drawerId === auth.user.id)
+    // Mêmes règles que le serveur (qui vérifie de toute façon)
+    const canDraw = computed(() =>
+        isPlaying.value ? game.value!.phase === 'drawing' && isDrawer.value : true,
+    )
+    const canClear = computed(() => (isPlaying.value ? canDraw.value : isHost.value))
+
+    function setGame(state: GameState) {
+        game.value = state
+        deadline.value = Date.now() + state.remaining
+    }
 
     function addMessage(message: ChatMessage) {
         messages.value.push(message)
@@ -46,6 +64,7 @@ export const useRoomStore = defineStore('room', () => {
                 hostId.value = msg.hostId
                 players.value = msg.players
                 strokes.value = msg.strokes
+                setGame(msg.game)
                 break
             case 'room:players':
                 hostId.value = msg.hostId
@@ -56,8 +75,13 @@ export const useRoomStore = defineStore('room', () => {
                 code.value = null
                 break
             case 'chat':
-                addMessage({ from: msg.from, text: msg.text, at: msg.at })
+                addMessage({ from: msg.from, text: msg.text, at: msg.at, variant: msg.variant })
                 break
+            case 'game:state': {
+                const { type: _, ...state } = msg
+                setGame(state)
+                break
+            }
             case 'draw:start':
                 strokes.value.push(msg.stroke)
                 break
@@ -105,6 +129,7 @@ export const useRoomStore = defineStore('room', () => {
         hostId.value = null
         players.value = []
         strokes.value = []
+        game.value = null
     }
 
     function sendChat(text: string) {
@@ -136,6 +161,16 @@ export const useRoomStore = defineStore('room', () => {
         socket.send({ type: 'draw:clear' })
     }
 
+    // --- Partie ---
+
+    function startGame(settings: { rounds: number; drawTime: number }) {
+        socket.send({ type: 'game:start', ...settings })
+    }
+
+    function chooseWord(index: number) {
+        socket.send({ type: 'game:choose', index })
+    }
+
     return {
         code,
         hostId,
@@ -143,7 +178,13 @@ export const useRoomStore = defineStore('room', () => {
         strokes,
         messages,
         error,
+        game,
+        deadline,
         isHost,
+        isPlaying,
+        isDrawer,
+        canDraw,
+        canClear,
         enter,
         leave,
         sendChat,
@@ -151,5 +192,7 @@ export const useRoomStore = defineStore('room', () => {
         sendPoints,
         undo,
         clear,
+        startGame,
+        chooseWord,
     }
 })
