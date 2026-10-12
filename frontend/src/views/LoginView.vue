@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import AvatarPicker from '@/components/AvatarPicker.vue'
+import type { AvatarId, HatId } from '@/avatars'
 
 type Mode = 'guest' | 'login' | 'register'
 
@@ -12,6 +14,8 @@ const router = useRouter()
 const mode = ref<Mode>('guest')
 const username = ref('')
 const password = ref('')
+const avatar = ref<AvatarId | null>(null)
+const hat = ref<HatId | null>(null)
 const error = ref('')
 const loading = ref(false)
 
@@ -25,9 +29,14 @@ async function submit() {
     error.value = ''
     loading.value = true
     try {
-        if (mode.value === 'guest') await auth.loginAsGuest(username.value)
+        if (mode.value === 'guest')
+            await auth.loginAsGuest(username.value, { avatar: avatar.value, hat: hat.value })
         else if (mode.value === 'login') await auth.login(username.value, password.value)
-        else await auth.register(username.value, password.value)
+        else
+            await auth.register(username.value, password.value, {
+                avatar: avatar.value,
+                hat: hat.value,
+            })
         const redirect = route.query.redirect
         router.replace(typeof redirect === 'string' && redirect.startsWith('/') ? redirect : '/')
     } catch (err) {
@@ -78,6 +87,12 @@ async function submit() {
                     minlength="6"
                 />
             </label>
+            <AvatarPicker
+                v-if="mode !== 'login'"
+                v-model:avatar="avatar"
+                v-model:hat="hat"
+                :username="username"
+            />
             <p v-if="error" class="error" role="alert">{{ error }}</p>
             <button class="btn primary" :disabled="loading">
                 {{
@@ -102,29 +117,39 @@ h1 {
     font-size: 1.8rem;
     line-height: 1.15;
 }
+h1 .accent {
+    text-shadow: var(--accent-text-glow);
+}
 .tabs {
     display: flex;
     gap: 4px;
     margin: 1.25rem 0;
     padding: 4px;
     background: var(--surface-2);
-    border-radius: 12px;
+    border-radius: var(--radius);
 }
 .tabs button {
     flex: 1;
-    padding: 0.5rem;
+    min-width: 0;
+    padding: 0.5rem 0.25rem;
     font: inherit;
     font-weight: 600;
     color: var(--text-muted);
     background: none;
     border: none;
-    border-radius: 9px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    transition:
+        color var(--transition),
+        background var(--transition);
+}
+.tabs button:hover {
+    color: var(--text);
 }
 .tabs button.active {
-    color: var(--text);
+    color: var(--accent);
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: inset 0 -2px 0 var(--accent);
 }
 form {
     display: flex;

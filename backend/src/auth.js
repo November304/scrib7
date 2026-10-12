@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { randomUUID } from 'crypto'
 import prisma from './prisma.js'
+import { parseAvatar, parseHat } from './avatars.js'
 
 const JWT_SECRET = process.env.JWT_SECRET
 const COOKIE_NAME = 'token'
@@ -12,7 +13,13 @@ const USERNAME_RE = /^[\p{L}\p{N}_-]{3,20}$/u
 // Le contenu du JWT : c'est aussi ce que voient les autres joueurs
 export function signToken(user) {
     return jwt.sign(
-        { id: user.id, username: user.username, avatar: user.avatar ?? null, guest: !!user.guest },
+        {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatar ?? null,
+            hat: user.hat ?? null,
+            guest: !!user.guest,
+        },
         JWT_SECRET,
         { expiresIn: '7d' },
     )
@@ -22,8 +29,8 @@ export function signToken(user) {
 export function verifyToken(token) {
     if (!token) return null
     try {
-        const { id, username, avatar, guest } = jwt.verify(token, JWT_SECRET)
-        return { id, username, avatar, guest }
+        const { id, username, avatar, hat, guest } = jwt.verify(token, JWT_SECRET)
+        return { id, username, avatar, hat: hat ?? null, guest }
     } catch {
         return null
     }
@@ -61,10 +68,20 @@ function checkCredentials(body) {
     return null
 }
 
+// Avatar et couvre-chef facultatifs ; renvoie un message d'erreur si l'un est inconnu
+function parseLook(body) {
+    const avatar = parseAvatar(body?.avatar)
+    const hat = parseHat(body?.hat)
+    if (avatar === undefined) return { error: 'Avatar inconnu' }
+    if (hat === undefined) return { error: 'Couvre-chef inconnu' }
+    return { avatar, hat }
+}
+
 const publicUser = (user) => ({
     id: user.id,
     username: user.username,
     avatar: user.avatar ?? null,
+    hat: user.hat ?? null,
     guest: !!user.guest,
 })
 
@@ -76,11 +93,15 @@ authRouter.post('/register', async (req, res) => {
         return res.status(400).json({ error: error ?? 'Mot de passe requis' })
     }
     const { username, password } = req.body
+    const look = parseLook(req.body)
+    if (look.error) return res.status(400).json({ error: look.error })
     if (await prisma.user.findUnique({ where: { username } })) {
         return res.status(409).json({ error: 'Ce pseudo est déjà pris' })
     }
     const passwordHash = await bcrypt.hash(password, 10)
-    const user = await prisma.user.create({ data: { username, passwordHash } })
+    const user = await prisma.user.create({
+        data: { username, passwordHash, avatar: look.avatar, hat: look.hat },
+    })
     setTokenCookie(res, user)
     res.status(201).json(publicUser(user))
 })
@@ -105,7 +126,9 @@ authRouter.post('/login', async (req, res) => {
 authRouter.post('/guest', (req, res) => {
     const error = checkCredentials({ username: req.body?.username })
     if (error) return res.status(400).json({ error })
-    const user = { id: `guest-${randomUUID()}`, username: req.body.username, guest: true }
+    const look = parseLook(req.body)
+    if (look.error) return res.status(400).json({ error: look.error })
+    const user = { id: `guest-${randomUUID()}`, username: req.body.username, ...look, guest: true }
     setTokenCookie(res, user)
     res.status(201).json(publicUser(user))
 })

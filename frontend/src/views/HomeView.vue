@@ -55,7 +55,7 @@ h2 {
 .code-input {
     flex: 1;
     min-width: 0;
-    font-family: ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 1.2rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;

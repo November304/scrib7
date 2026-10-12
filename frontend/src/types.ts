@@ -2,6 +2,7 @@ export interface User {
     id: number | string
     username: string
     avatar: string | null
+    hat: string | null
     guest: boolean
 }
 

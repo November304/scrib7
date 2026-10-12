@@ -19,7 +19,11 @@ defineProps<{
             <li
                 v-for="player in players"
                 :key="player.id"
-                :class="{ me: player.id === meId, guessed: game?.guessed.includes(player.id) }"
+                :class="{
+                    me: player.id === meId,
+                    guessed: game?.guessed.includes(player.id),
+                    drawing: player.id === game?.drawerId,
+                }"
             >
                 <UserAvatar :user="player" />
                 <div class="info">
@@ -51,10 +55,15 @@ li {
     align-items: center;
     gap: 0.6rem;
     padding: 0.35rem 0.5rem;
-    border-radius: 10px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
 }
 li.me {
     background: var(--accent-soft);
+}
+li.drawing {
+    border-color: var(--accent);
+    box-shadow: var(--accent-glow);
 }
 li.guessed {
     background: var(--success-soft);
@@ -66,6 +75,7 @@ li.guessed {
     line-height: 1.2;
 }
 .score {
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--text-muted);
 }
@@ -81,7 +91,8 @@ li.guessed {
     font-size: 0.75rem;
     color: var(--text-muted);
     background: var(--surface-2);
-    border-radius: 999px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
 }
 .count {
     font-weight: 400;

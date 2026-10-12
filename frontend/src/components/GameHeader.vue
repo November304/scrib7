@@ -133,14 +133,14 @@ const letterCount = computed(() => props.game.hint?.replace(/[^_\p{L}\p{N}]/gu, 
 }
 select {
     padding: 0.35rem 0.5rem;
-    font: inherit;
-    color: var(--text);
-    background: var(--surface-2);
-    border: 2px solid transparent;
-    border-radius: 8px;
 }
 .round {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 .word {
     display: flex;
@@ -176,8 +176,8 @@ select {
     padding: 0.1rem 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    border-radius: 999px;
-    background: var(--surface-2);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
 }
 .difficulty.easy {
     color: var(--success);
@@ -190,6 +190,7 @@ select {
 }
 .timer {
     min-width: 3.5rem;
+    font-family: var(--font-mono);
     font-size: 1.2rem;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
@@ -197,5 +198,6 @@ select {
 }
 .timer.urgent {
     color: var(--danger);
+    text-shadow: var(--danger-glow);
 }
 </style>

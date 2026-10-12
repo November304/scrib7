@@ -2,7 +2,14 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api, ApiError } from '@/api'
 import { socket } from '@/services/socket'
+import type { AvatarId, HatId } from '@/avatars'
 import type { User } from '@/types'
+
+// Apparence choisie à la création : avatar et couvre-chef, tous deux facultatifs
+export interface Look {
+    avatar: AvatarId | null
+    hat: HatId | null
+}
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null)
@@ -27,15 +34,18 @@ export const useAuthStore = defineStore('auth', () => {
         })
     }
 
-    async function register(username: string, password: string) {
+    async function register(username: string, password: string, look: Look) {
         user.value = await api<User>('/auth/register', {
             method: 'POST',
-            body: { username, password },
+            body: { username, password, ...look },
         })
     }
 
-    async function loginAsGuest(username: string) {
-        user.value = await api<User>('/auth/guest', { method: 'POST', body: { username } })
+    async function loginAsGuest(username: string, look: Look) {
+        user.value = await api<User>('/auth/guest', {
+            method: 'POST',
+            body: { username, ...look },
+        })
     }
 
     async function logout() {

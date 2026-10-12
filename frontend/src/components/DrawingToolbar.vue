@@ -136,13 +136,14 @@ defineEmits<{ undo: []; clear: [] }>()
     width: 24px;
     height: 24px;
     padding: 0;
-    border: 2px solid var(--border);
-    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
     cursor: pointer;
 }
 .swatch.active {
-    outline: 3px solid var(--accent);
-    outline-offset: 1px;
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    box-shadow: var(--accent-glow);
 }
 .swatch.custom {
     position: relative;
@@ -171,18 +172,25 @@ defineEmits<{ undo: []; clear: [] }>()
     padding: 0;
     color: var(--text);
     background: var(--surface-2);
-    border: 2px solid transparent;
-    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    transition:
+        color var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
 }
 .tool:hover {
-    background: var(--border);
+    color: var(--accent);
+    border-color: var(--accent);
 }
 .tool.active {
-    border-color: var(--accent);
     color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--accent-glow);
 }
 .tool.danger:hover {
     color: var(--danger);
+    border-color: var(--danger);
 }
 </style>

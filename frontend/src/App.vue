@@ -14,7 +14,10 @@ async function logout() {
 
 <template>
     <header class="topbar">
-        <RouterLink to="/" class="logo">Scrib<span>7</span></RouterLink>
+        <RouterLink to="/" class="logo">
+            <img src="/logo.svg" alt="" width="36" height="36" />
+            <span class="wordmark">Scrib<span>7</span></span>
+        </RouterLink>
         <div v-if="auth.user" class="user">
             <UserAvatar :user="auth.user" :size="32" />
             <span>{{ auth.user.username }}</span>
@@ -34,17 +37,23 @@ async function logout() {
     gap: 1rem;
     max-width: 1280px;
     margin: 0 auto;
+    margin-bottom: 1.5rem;
     padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
 }
 .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.6rem;
     font-weight: 800;
     color: var(--text);
     text-decoration: none;
     letter-spacing: -0.02em;
 }
-.logo span {
+.wordmark span {
     color: var(--accent);
+    text-shadow: var(--accent-text-glow);
 }
 .user {
     display: flex;

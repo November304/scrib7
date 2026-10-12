@@ -75,7 +75,7 @@ ul {
 }
 li {
     padding: 0.2rem 0.3rem;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
 }
 li:nth-child(odd) {
     background: var(--surface-2);

@@ -87,6 +87,7 @@ export class Room {
             id: user.id,
             username: user.username,
             avatar: user.avatar,
+            hat: user.hat,
             guest: user.guest,
         }))
     }

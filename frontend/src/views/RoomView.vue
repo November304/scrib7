@@ -174,9 +174,11 @@ async function copyInvite() {
     align-items: flex-start;
 }
 .code {
-    font-family: ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 1.8rem;
     letter-spacing: 0.15em;
+    color: var(--accent);
+    text-shadow: var(--accent-text-glow);
 }
 .notice {
     max-width: 420px;
@@ -188,6 +190,7 @@ async function copyInvite() {
     padding: 0.4rem 0.75rem;
     color: var(--danger);
     background: var(--surface);
+    border: 1px solid var(--danger);
     border-radius: var(--radius);
 }
 

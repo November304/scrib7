@@ -128,8 +128,12 @@ function pathOf(points: Point[]) {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     cursor: crosshair;
+    transition: box-shadow var(--transition);
     touch-action: none; /* sinon le doigt fait défiler la page au lieu de dessiner */
     user-select: none;
+}
+.board:not(.disabled) {
+    box-shadow: var(--accent-glow);
 }
 .board.disabled {
     cursor: not-allowed;

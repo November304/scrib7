@@ -77,8 +77,8 @@ const MEDALS = ['🥇', '🥈', '🥉']
     justify-content: center;
     padding: 1rem;
     text-align: center;
-    color: #fff;
-    background: rgb(29 23 48 / 0.82);
+    color: var(--text);
+    background: var(--overlay);
     border-radius: var(--radius);
 }
 .overlay h2 {
@@ -87,9 +87,6 @@ const MEDALS = ['🥇', '🥈', '🥉']
 }
 .overlay p {
     margin: 0;
-}
-.overlay .muted {
-    color: rgb(255 255 255 / 0.7);
 }
 .choices {
     display: flex;
@@ -106,9 +103,13 @@ const MEDALS = ['🥇', '🥈', '🥉']
     font: inherit;
     color: var(--text);
     background: var(--surface);
-    border: 3px solid transparent;
-    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
     cursor: pointer;
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
 }
 .choice strong {
     font-size: 1.15rem;
@@ -128,7 +129,13 @@ const MEDALS = ['🥇', '🥈', '🥉']
 }
 .choice:hover {
     border-color: var(--accent);
+    box-shadow: var(--accent-glow);
     transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+    .choice:hover {
+        transform: none;
+    }
 }
 .reveal {
     font-size: 2rem !important;
@@ -147,17 +154,19 @@ const MEDALS = ['🥇', '🥈', '🥉']
     justify-content: space-between;
     gap: 1rem;
     padding: 0.3rem 0.6rem;
-    background: rgb(255 255 255 / 0.08);
-    border-radius: 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
 }
 .results li.first {
     font-size: 1.15rem;
-    background: rgb(255 215 0 / 0.2);
+    background: var(--accent-soft);
+    box-shadow: var(--accent-glow);
 }
 .results strong {
-    color: #7dff9e;
+    font-family: var(--font-mono);
+    color: var(--success);
 }
 .results strong.zero {
-    color: rgb(255 255 255 / 0.5);
+    color: var(--text-muted);
 }
 </style>

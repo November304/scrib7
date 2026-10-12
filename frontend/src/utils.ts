@@ -1,11 +1,11 @@
 import { onBeforeUnmount, ref } from 'vue'
 import type { Difficulty } from '@/types'
 
-// Couleur stable dérivée d'un identifiant (pour les avatars)
+// Couleur néon stable dérivée d'un identifiant (initiales des avatars, lisible sur fond sombre)
 export function colorFromId(id: string | number) {
     let hash = 0
     for (const char of String(id)) hash = (hash * 31 + char.charCodeAt(0)) | 0
-    return `hsl(${Math.abs(hash) % 360} 70% 55%)`
+    return `hsl(${Math.abs(hash) % 360} 75% 70%)`
 }
 
 export function initials(username: string) {
