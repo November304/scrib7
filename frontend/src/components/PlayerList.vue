@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import UserAvatar from '@/components/UserAvatar.vue'
-import type { Player, User } from '@/types'
+import type { GameState, Player, User } from '@/types'
 
-defineProps<{ players: Player[]; hostId: User['id'] | null; meId: User['id'] | undefined }>()
+defineProps<{
+    players: Player[]
+    hostId: User['id'] | null
+    meId: User['id'] | undefined
+    game: GameState | null
+}>()
 </script>
 
 <template>
@@ -11,9 +16,20 @@ defineProps<{ players: Player[]; hostId: User['id'] | null; meId: User['id'] | u
             Joueurs <span class="count">{{ players.length }}/10</span>
         </h2>
         <ul>
-            <li v-for="player in players" :key="player.id" :class="{ me: player.id === meId }">
+            <li
+                v-for="player in players"
+                :key="player.id"
+                :class="{ me: player.id === meId, guessed: game?.guessed.includes(player.id) }"
+            >
                 <UserAvatar :user="player" />
-                <span class="name">{{ player.username }}</span>
+                <div class="info">
+                    <span class="name">{{ player.username }}</span>
+                    <span v-if="game && game.phase !== 'lobby'" class="score"
+                        >{{ game.scores[String(player.id)] ?? 0 }} pts</span
+                    >
+                </div>
+                <span v-if="player.id === game?.drawerId" title="Dessine">✏️</span>
+                <span v-if="game?.guessed.includes(player.id)" title="A trouvé">✅</span>
                 <span v-if="player.id === hostId" class="badge" title="Hôte de la salle">👑</span>
                 <span v-if="player.guest" class="tag">invité</span>
             </li>
@@ -39,6 +55,19 @@ li {
 }
 li.me {
     background: var(--accent-soft);
+}
+li.guessed {
+    background: var(--success-soft);
+}
+.info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+.score {
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }
 .name {
     overflow: hidden;

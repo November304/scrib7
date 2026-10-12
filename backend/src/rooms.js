@@ -1,4 +1,5 @@
 import { randomInt } from 'crypto'
+import { Game } from './game.js'
 
 export const CANVAS_WIDTH = 800
 export const CANVAS_HEIGHT = 600
@@ -29,6 +30,7 @@ export class Room {
         this.players = new Map() // userId -> { user, ws }
         this.strokes = [] // { id, userId, color, width, points: [[x, y], ...] }
         this.deleteTimer = null
+        this.game = new Game(this)
     }
 
     get isFull() {
@@ -45,23 +47,32 @@ export class Room {
         }
         this.players.set(user.id, { user, ws })
         ws.room = this
+        this.game.onPlayerJoin(user.id)
     }
 
     removePlayer(userId) {
         this.players.delete(userId)
-        if (this.players.size === 0) {
-            this.deleteTimer = setTimeout(() => rooms.delete(this.code), EMPTY_ROOM_TTL)
-            return
-        }
-        if (this.hostId === userId) {
+        if (this.hostId === userId && this.players.size > 0) {
             // L'hôte part : le plus ancien joueur restant prend la main
             this.hostId = this.players.keys().next().value
         }
+        this.game.onPlayerLeave(userId)
+        if (this.players.size === 0) {
+            this.deleteTimer = setTimeout(() => rooms.delete(this.code), EMPTY_ROOM_TTL)
+        }
     }
 
-    // Étape 1 : tout le monde dessine. Sera restreint au dessinateur de la manche.
     canDraw(userId) {
-        return this.players.has(userId)
+        return this.game.canDraw(userId)
+    }
+
+    canClear(userId) {
+        return this.game.canClear(userId)
+    }
+
+    sendTo(userId, message) {
+        const player = this.players.get(userId)
+        if (player) send(player.ws, message)
     }
 
     broadcast(message, exceptWs = null) {
@@ -80,13 +91,15 @@ export class Room {
         }))
     }
 
-    state() {
+    // L'état dépend du joueur : seul le dessinateur voit le mot
+    state(userId) {
         return {
             code: this.code,
             hostId: this.hostId,
             players: this.playersList(),
             strokes: this.strokes,
             canvas: { width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
+            game: this.game.stateFor(userId),
         }
     }
 

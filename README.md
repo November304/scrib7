@@ -33,11 +33,14 @@ backend/
   src/auth.js        /api/auth : register, login, guest, logout, me + middleware requireAuth
   src/ws.js          serveur WebSocket : auth au handshake, validation et routage des messages
   src/rooms.js       salles en mémoire : joueurs, hôte, traits du dessin
+  src/game.js        règles du jeu : tours, minuteurs, devinettes, indices, barème de points
+  src/words.js       mots par difficulté (facile / moyen / difficile)
 frontend/src/
   services/socket.ts connexion WebSocket unique avec reconnexion automatique
   stores/            Pinia : auth (utilisateur courant), room (état de la salle)
   views/             Login, Home, Room
-  components/        DrawingBoard (SVG), DrawingToolbar, PlayerList, ChatBox, UserAvatar
+  components/        DrawingBoard (SVG), DrawingToolbar, PlayerList, ChatBox, UserAvatar,
+                     GameHeader (manche, indice, minuteur), GameOverlay (choix du mot, résultats)
 ```
 
 ## Protocole WebSocket
@@ -45,23 +48,44 @@ frontend/src/
 Messages JSON `{ type, ...données }`. Le serveur valide tout (couleurs, coordonnées, tailles)
 et ne fait jamais confiance au client.
 
-| Client → serveur | Serveur → clients                           |
-| ---------------- | ------------------------------------------- |
-| `room:create`    | `room:state` (état complet à l'arrivée)     |
-| `room:join`      | `room:players` (arrivées, départs, hôte)    |
-| `room:leave`     | `room:kicked` (ouvert dans un autre onglet) |
-| `chat`           | `chat`                                      |
-| `draw:start`     | `draw:start`                                |
-| `draw:points`    | `draw:points` (envoyés par paquets ~25/s)   |
-| `draw:undo`      | `draw:remove`                               |
-| `draw:clear`     | `draw:clear` (hôte uniquement)              |
+| Client → serveur | Serveur → clients                              |
+| ---------------- | ---------------------------------------------- |
+| `room:create`    | `room:state` (état complet à l'arrivée)        |
+| `room:join`      | `room:players` (arrivées, départs, hôte)       |
+| `room:leave`     | `room:kicked` (ouvert dans un autre onglet)    |
+| `chat`           | `chat`                                         |
+| `draw:start`     | `draw:start`                                   |
+| `draw:points`    | `draw:points` (envoyés par paquets ~25/s)      |
+| `draw:undo`      | `draw:remove`                                  |
+| `draw:clear`     | `draw:clear` (hôte uniquement)                 |
+| `game:start`     | `game:state` (personnalisé pour chaque joueur) |
+| `game:choose`    |                                                |
+
+## Déroulement d'une partie
+
+`lobby → [choosing → drawing → turnEnd] × tours → gameEnd`
+
+- L'hôte lance la partie (2 joueurs minimum) et règle le nombre de manches et le temps de dessin.
+  Une **manche** = chaque joueur dessine une fois.
+- Au début de son tour, le dessinateur choisit parmi **3 mots** : facile, moyen, difficile
+  (15 s, sinon un mot est tiré au hasard). Lui seul peut dessiner.
+- Les autres devinent dans le chat. La comparaison ignore accents, majuscules, espaces et tirets.
+  À 1 lettre près (2 pour les mots de 6 lettres ou plus), le joueur reçoit en privé « tout proche ! ».
+- Une bonne réponse n'est jamais affichée ; ceux qui ont trouvé (et le dessinateur) ne parlent
+  plus qu'entre eux pour ne pas divulguer le mot.
+- Des lettres sont révélées pendant la seconde moitié du temps. Le tour se termine quand tout
+  le monde a trouvé ou que le temps est écoulé.
+- Points (barème regroupé en haut de `backend/src/game.js`, à équilibrer) : base 100 / 200 / 300
+  selon la difficulté ; celui qui trouve gagne de 100 % à 50 % de la base selon sa rapidité, le
+  dessinateur jusqu'à 50 % selon la proportion de joueurs qui ont trouvé.
 
 ## Feuille de route
 
 - [x] Comptes (bcrypt + JWT) et mode invité
 - [x] Salles avec code, lien d'invitation, transfert d'hôte
 - [x] Dessin SVG synchronisé en temps réel, gomme, annuler, chat
-- [ ] Mode classique : manches, mot secret, minuteur, score
+- [x] Mode classique : manches, choix du mot (3 difficultés), minuteur, indices, score
+- [ ] Équilibrage du barème de points
 - [ ] Mode Imposteur : rôles cachés, tours de dessin, vote
 - [ ] Roulette de malus, replay final animé
 - [ ] Upload d'avatar et de packs de mots, historique des parties (Prisma)
