@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
+import { pathOf } from '@/utils'
 import type { Point, Stroke } from '@/types'
 
 const WIDTH = 800
@@ -77,21 +78,6 @@ function onPointerUp() {
 }
 
 onBeforeUnmount(onPointerUp)
-
-// Courbe lissée : on passe par les milieux des segments avec des courbes de Bézier
-function pathOf(points: Point[]) {
-    const [first, ...rest] = points
-    if (!first) return ''
-    if (rest.length === 0) return `M${first[0]} ${first[1]}l0.01 0` // un simple point
-    let d = `M${first[0]} ${first[1]}`
-    for (let i = 0; i < rest.length - 1; i++) {
-        const [x1, y1] = rest[i]!
-        const [x2, y2] = rest[i + 1]!
-        d += `Q${x1} ${y1} ${(x1 + x2) / 2} ${(y1 + y2) / 2}`
-    }
-    const last = rest.at(-1)!
-    return d + `L${last[0]} ${last[1]}`
-}
 </script>
 
 <template>

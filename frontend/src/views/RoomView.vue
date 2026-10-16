@@ -10,6 +10,7 @@ import PlayerList from '@/components/PlayerList.vue'
 import ChatBox from '@/components/ChatBox.vue'
 import GameHeader from '@/components/GameHeader.vue'
 import GameOverlay from '@/components/GameOverlay.vue'
+import ImpostorGallery from '@/components/ImpostorGallery.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,9 +54,17 @@ onBeforeUnmount(() => {
     window.removeEventListener('keydown', onKeydown)
 })
 
+// Imposteur : une fois le temps écoulé, la galerie des dessins remplace le tableau
+const showGallery = computed(
+    () =>
+        room.game?.mode === 'impostor' &&
+        (room.game.phase === 'voting' || room.game.phase === 'results'),
+)
+
 const chatPlaceholder = computed(() => {
     const game = room.game
-    if (game?.phase !== 'drawing') return 'Écris un message…'
+    if (game?.mode === 'impostor' && game.phase === 'voting') return 'Accuse, défends-toi…'
+    if (game?.mode !== 'classic' || game.phase !== 'drawing') return 'Écris un message…'
     if (room.isDrawer) return 'Seuls ceux qui ont trouvé te lisent'
     if (game.word) return 'Bien joué ! Seuls ceux qui ont trouvé te lisent'
     return 'Écris ta réponse…'
@@ -107,7 +116,15 @@ async function copyInvite() {
                 :is-drawer="room.isDrawer"
                 @start="room.startGame"
             />
-            <div class="board-wrap">
+            <ImpostorGallery
+                v-if="showGallery && room.game?.mode === 'impostor'"
+                :game="room.game"
+                :players="room.players"
+                :strokes="room.strokes"
+                :me-id="auth.user?.id"
+                @vote="room.vote"
+            />
+            <div v-else class="board-wrap">
                 <DrawingBoard
                     :strokes="room.strokes"
                     :color="color"

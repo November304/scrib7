@@ -8,10 +8,13 @@ defineEmits<{ choose: [index: number] }>()
 
 const nameOf = (id: Player['id'] | null) => props.players.find((p) => p.id === id)?.username ?? '…'
 
+// Le choix du mot et la fin de tour n'existent qu'en mode classique
+const classic = computed(() => (props.game.mode === 'classic' ? props.game : null))
+
 // Points gagnés pendant le tour qui vient de se terminer, du meilleur au moins bon
 const turnResults = computed(() =>
     props.players
-        .map((p) => ({ ...p, points: props.game.turnPoints?.[String(p.id)] ?? 0 }))
+        .map((p) => ({ ...p, points: classic.value?.turnPoints?.[String(p.id)] ?? 0 }))
         .sort((a, b) => b.points - a.points),
 )
 
@@ -24,12 +27,12 @@ const MEDALS = ['🥇', '🥈', '🥉']
 </script>
 
 <template>
-    <div v-if="game.phase === 'choosing'" class="overlay">
-        <template v-if="isDrawer && game.choices">
+    <div v-if="classic?.phase === 'choosing'" class="overlay">
+        <template v-if="isDrawer && classic.choices">
             <h2>Choisis un mot à dessiner</h2>
             <div class="choices">
                 <button
-                    v-for="(choice, i) in game.choices"
+                    v-for="(choice, i) in classic.choices"
                     :key="choice.text"
                     class="choice"
                     :class="choice.difficulty"
@@ -41,15 +44,17 @@ const MEDALS = ['🥇', '🥈', '🥉']
             </div>
             <p class="muted">Plus c'est difficile, plus ça rapporte de points</p>
         </template>
-        <h2 v-else>{{ nameOf(game.drawerId) }} choisit un mot…</h2>
+        <h2 v-else>{{ nameOf(classic.drawerId) }} choisit un mot…</h2>
     </div>
 
-    <div v-else-if="game.phase === 'turnEnd'" class="overlay">
+    <div v-else-if="classic?.phase === 'turnEnd'" class="overlay">
         <p class="muted">Le mot était</p>
-        <h2 class="reveal">{{ game.word }}</h2>
+        <h2 class="reveal">{{ classic.word }}</h2>
         <ul class="results">
             <li v-for="p in turnResults" :key="p.id">
-                <span>{{ p.username }}<template v-if="p.id === game.drawerId"> ✏️</template></span>
+                <span
+                    >{{ p.username }}<template v-if="p.id === classic.drawerId"> ✏️</template></span
+                >
                 <strong :class="{ zero: !p.points }">+{{ p.points }}</strong>
             </li>
         </ul>

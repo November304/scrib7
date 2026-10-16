@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { DIFFICULTY_LABELS, useNow } from '@/utils'
-import type { GameState, Player } from '@/types'
+import type { GameMode, GameState, Player } from '@/types'
 
 const ROUNDS = [1, 2, 3, 4, 5, 6, 8, 10]
 const DRAW_TIMES = [30, 45, 60, 80, 100, 120, 150, 180]
-const MIN_PLAYERS = 2
+const MODES: Record<GameMode, { label: string; minPlayers: number }> = {
+    classic: { label: 'Classique', minPlayers: 2 },
+    impostor: { label: 'Imposteur', minPlayers: 3 },
+}
 
 const props = defineProps<{
     game: GameState
@@ -14,18 +17,23 @@ const props = defineProps<{
     isHost: boolean
     isDrawer: boolean
 }>()
-defineEmits<{ start: [settings: { rounds: number; drawTime: number }] }>()
+defineEmits<{ start: [settings: { mode: GameMode; rounds: number; drawTime: number }] }>()
 
+const mode = ref<GameMode>(props.game.mode)
+const minPlayers = computed(() => MODES[mode.value].minPlayers)
 const rounds = ref(props.game.rounds)
 const drawTime = ref(props.game.drawTime)
 
 const now = useNow()
 const seconds = computed(() => Math.ceil(Math.max(0, props.deadline - now.value) / 1000))
 const inLobby = computed(() => props.game.phase === 'lobby' || props.game.phase === 'gameEnd')
-const drawerName = computed(
-    () => props.players.find((p) => p.id === props.game.drawerId)?.username ?? '…',
-)
-const letterCount = computed(() => props.game.hint?.replace(/[^_\p{L}\p{N}]/gu, '').length ?? 0)
+const nameOf = (id: Player['id'] | null | undefined) =>
+    props.players.find((p) => p.id === id)?.username ?? '…'
+
+// Raccourcis typés pour chaque mode (null si ce n'est pas le mode en cours)
+const classic = computed(() => (props.game.mode === 'classic' ? props.game : null))
+const impostor = computed(() => (props.game.mode === 'impostor' ? props.game : null))
+const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/gu, '').length ?? 0)
 </script>
 
 <template>
@@ -34,8 +42,16 @@ const letterCount = computed(() => props.game.hint?.replace(/[^_\p{L}\p{N}]/gu, 
             <form
                 v-if="isHost"
                 class="settings"
-                @submit.prevent="$emit('start', { rounds, drawTime })"
+                @submit.prevent="$emit('start', { mode, rounds, drawTime })"
             >
+                <label>
+                    Mode
+                    <select v-model="mode">
+                        <option v-for="(m, key) in MODES" :key="key" :value="key">
+                            {{ m.label }}
+                        </option>
+                    </select>
+                </label>
                 <label>
                     Manches
                     <select v-model.number="rounds">
@@ -48,11 +64,11 @@ const letterCount = computed(() => props.game.hint?.replace(/[^_\p{L}\p{N}]/gu, 
                         <option v-for="t in DRAW_TIMES" :key="t" :value="t">{{ t }} s</option>
                     </select>
                 </label>
-                <button class="btn primary" :disabled="players.length < MIN_PLAYERS">
+                <button class="btn primary" :disabled="players.length < minPlayers">
                     {{ game.phase === 'gameEnd' ? 'Rejouer' : 'Lancer la partie' }}
                 </button>
-                <span v-if="players.length < MIN_PLAYERS" class="muted">
-                    Invite au moins un ami pour jouer
+                <span v-if="players.length < minPlayers" class="muted">
+                    Il faut au moins {{ minPlayers }} joueurs pour ce mode
                 </span>
             </form>
             <p v-else class="muted">En attente que l'hôte lance la partie…</p>
@@ -61,26 +77,26 @@ const letterCount = computed(() => props.game.hint?.replace(/[^_\p{L}\p{N}]/gu, 
         <template v-else>
             <span class="round">Manche {{ game.round }}/{{ game.rounds }}</span>
 
-            <div class="word" aria-live="polite">
-                <template v-if="game.phase === 'choosing'">
+            <div v-if="classic" class="word" aria-live="polite">
+                <template v-if="classic.phase === 'choosing'">
                     <span class="muted">{{
-                        isDrawer ? 'Choisis un mot' : `${drawerName} choisit un mot…`
+                        isDrawer ? 'Choisis un mot' : `${nameOf(classic.drawerId)} choisit un mot…`
                     }}</span>
                 </template>
-                <template v-else-if="game.word">
+                <template v-else-if="classic.word">
                     <span class="muted">{{
-                        game.phase === 'turnEnd'
+                        classic.phase === 'turnEnd'
                             ? 'Le mot était'
                             : isDrawer
                               ? 'Tu dessines'
                               : 'Trouvé !'
                     }}</span>
-                    <strong>{{ game.word }}</strong>
+                    <strong>{{ classic.word }}</strong>
                 </template>
-                <template v-else-if="game.hint">
+                <template v-else-if="classic.hint">
                     <span class="hint" :aria-label="`Mot de ${letterCount} lettres`">
                         <span
-                            v-for="(char, i) in game.hint"
+                            v-for="(char, i) in classic.hint"
                             :key="i"
                             :class="char === '_' ? 'blank' : char === ' ' ? 'space' : 'shown'"
                             >{{ char === '_' ? '' : char }}</span
@@ -89,11 +105,24 @@ const letterCount = computed(() => props.game.hint?.replace(/[^_\p{L}\p{N}]/gu, 
                     <sup class="muted">{{ letterCount }}</sup>
                 </template>
                 <span
-                    v-if="game.difficulty && game.phase !== 'choosing'"
+                    v-if="classic.difficulty && classic.phase !== 'choosing'"
                     class="difficulty"
-                    :class="game.difficulty"
-                    >{{ DIFFICULTY_LABELS[game.difficulty] }}</span
+                    :class="classic.difficulty"
+                    >{{ DIFFICULTY_LABELS[classic.difficulty] }}</span
                 >
+            </div>
+
+            <div v-else-if="impostor" class="word" aria-live="polite">
+                <template v-if="impostor.phase === 'results' && impostor.result">
+                    <span class="muted">Imposteur :</span>
+                    <strong>{{ nameOf(impostor.result.impostorId) }}</strong>
+                </template>
+                <template v-else-if="impostor.myWord">
+                    <span class="muted">{{
+                        impostor.phase === 'voting' ? 'Qui est l’imposteur ? Ton mot :' : 'Dessine'
+                    }}</span>
+                    <strong>{{ impostor.myWord }}</strong>
+                </template>
             </div>
 
             <span class="timer" :class="{ urgent: game.phase === 'drawing' && seconds <= 10 }">

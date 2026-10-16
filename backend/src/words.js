@@ -74,3 +74,40 @@ export function pickWord(difficulty, used) {
     const pool = fresh.length ? fresh : list
     return pool[randomInt(pool.length)]
 }
+
+// Mode Imposteur : paires de mots assez proches pour que l'imposteur ne se rende pas compte
+// tout de suite qu'il n'a pas le même mot que les autres
+// prettier-ignore
+export const IMPOSTOR_PAIRS = [
+    ['chat', 'tigre'], ['chien', 'loup'], ['pomme', 'tomate'], ['citron', 'orange'],
+    ['soleil', 'lune'], ['guitare', 'violon'], ['avion', 'oiseau'], ['bateau', 'sous-marin'],
+    ['voiture', 'camion'], ['vélo', 'trottinette'], ['pizza', 'tarte'], ['hamburger', 'sandwich'],
+    ['glace', 'gâteau'], ['château', 'maison'], ['arbre', 'sapin'], ['fleur', 'champignon'],
+    ['parapluie', 'parasol'], ['chapeau', 'casquette'], ['lunettes', 'jumelles'],
+    ['téléphone', 'télécommande'], ['ordinateur', 'télévision'], ['crayon', 'pinceau'],
+    ['fourchette', 'cuillère'], ['bougie', 'lampe'], ['montre', 'boussole'], ['pirate', 'cowboy'],
+    ['vampire', 'sorcière'], ['robot', 'astronaute'], ['dragon', 'dinosaure'],
+    ['requin', 'dauphin'], ['pingouin', 'ours polaire'], ['abeille', 'mouche'],
+    ['papillon', 'libellule'], ['escargot', 'tortue'], ['serpent', 'ver de terre'],
+    ['girafe', 'zèbre'], ['volcan', 'montagne'], ['plage', 'désert'], ['nuage', 'fumée'],
+    ['pluie', 'neige'], ['fusée', 'avion'], ['banane', 'croissant'], ['carotte', 'crayon'],
+    ['œuf', 'ballon'], ['igloo', 'tente'], ['phare', 'tour'], ['piano', 'clavier'],
+    ['football', 'basket'], ['ski', 'luge'], ['lit', 'canapé'], ['chaise', 'tabouret'],
+    ['clé', 'cadenas'], ['cadeau', 'valise'], ['couronne', 'chapeau'], ['épée', 'couteau'],
+    ['fantôme', 'momie'], ['licorne', 'cheval'], ['sirène', 'poisson'], ['hélicoptère', 'drone'],
+    ['train', 'métro'], ['moto', 'scooter'], ['brosse à dents', 'peigne'], ['savon', 'éponge'],
+    ['frite', 'allumette'], ['bonhomme de neige', 'épouvantail'], ['pyramide', 'tente'],
+    ['lion', 'chat'], ['vache', 'cochon'], ['canard', 'poule'], ['fraise', 'cerise'],
+    ['horloge', 'boussole'], ['bouteille', 'verre'], ['fenêtre', 'porte'], ['cœur', 'étoile'],
+]
+
+// Tire une paire pas encore jouée ; on mélange l'ordre pour que chaque mot puisse être celui
+// de l'imposteur. Renvoie [mot des autres, mot de l'imposteur]
+export function pickPair(used) {
+    const fresh = IMPOSTOR_PAIRS.map((_, i) => i).filter((i) => !used.has(i))
+    const pool = fresh.length ? fresh : IMPOSTOR_PAIRS.map((_, i) => i)
+    const index = pool[randomInt(pool.length)]
+    used.add(index)
+    const [a, b] = IMPOSTOR_PAIRS[index]
+    return randomInt(2) ? [a, b] : [b, a]
+}

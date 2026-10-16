@@ -79,7 +79,7 @@ const handlers = {
         if (!room.canDraw(ws.user.id)) return
         if (!isStrokeId(id) || !isColor(color) || !isWidth(width) || !isPoint(point)) return
         const stroke = room.startStroke(ws.user.id, { id, color, width, point: roundPoint(point) })
-        if (stroke) room.broadcast({ type: 'draw:start', stroke }, ws)
+        if (stroke) room.sendDrawing(ws, { type: 'draw:start', stroke })
     },
 
     'draw:points'(ws, { id, points }, room) {
@@ -92,28 +92,34 @@ const handlers = {
             return
         points = points.map(roundPoint)
         if (room.addPoints(ws.user.id, id, points)) {
-            room.broadcast({ type: 'draw:points', userId: ws.user.id, id, points }, ws)
+            room.sendDrawing(ws, { type: 'draw:points', userId: ws.user.id, id, points })
         }
     },
 
     'draw:undo'(ws, _msg, room) {
         if (!room.canDraw(ws.user.id)) return
         const id = room.undo(ws.user.id)
-        if (id) room.broadcast({ type: 'draw:remove', id })
+        if (id) room.sendDrawing(ws, { type: 'draw:remove', id }, { includeSelf: true })
     },
 
     'draw:clear'(ws, _msg, room) {
         if (!room.canClear(ws.user.id)) return
-        room.clear()
-        room.broadcast({ type: 'draw:clear' })
+        room.clearDrawing(ws.user.id)
+        room.sendDrawing(ws, { type: 'draw:clear' }, { includeSelf: true })
     },
 
-    'game:start'(ws, { rounds, drawTime }, room) {
-        room.game.start(ws.user.id, { rounds, drawTime })
+    'game:start'(ws, { mode, rounds, drawTime }, room) {
+        room.startGame(ws.user.id, { mode, rounds, drawTime })
     },
 
+    // Mode classique : le dessinateur choisit son mot
     'game:choose'(ws, { index }, room) {
-        room.game.choose(ws.user.id, index)
+        if (room.game.mode === 'classic') room.game.choose(ws.user.id, index)
+    },
+
+    // Mode Imposteur : vote contre un joueur
+    'game:vote'(ws, { targetId }, room) {
+        if (room.game.mode === 'impostor') room.game.vote(ws.user.id, targetId)
     },
 }
 
@@ -126,6 +132,7 @@ const NEEDS_ROOM = new Set([
     'draw:clear',
     'game:start',
     'game:choose',
+    'game:vote',
 ])
 
 export function attachWebSocket(server) {

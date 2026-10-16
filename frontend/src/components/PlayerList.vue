@@ -2,12 +2,18 @@
 import UserAvatar from '@/components/UserAvatar.vue'
 import type { GameState, Player, User } from '@/types'
 
-defineProps<{
+const props = defineProps<{
     players: Player[]
     hostId: User['id'] | null
     meId: User['id'] | undefined
     game: GameState | null
 }>()
+
+const isDrawer = (id: Player['id']) => props.game?.mode === 'classic' && props.game.drawerId === id
+const hasGuessed = (id: Player['id']) =>
+    props.game?.mode === 'classic' && props.game.guessed.includes(id)
+const hasVoted = (id: Player['id']) =>
+    props.game?.mode === 'impostor' && props.game.voted.includes(id)
 </script>
 
 <template>
@@ -21,8 +27,8 @@ defineProps<{
                 :key="player.id"
                 :class="{
                     me: player.id === meId,
-                    guessed: game?.guessed.includes(player.id),
-                    drawing: player.id === game?.drawerId,
+                    guessed: hasGuessed(player.id),
+                    drawing: isDrawer(player.id),
                 }"
             >
                 <UserAvatar :user="player" />
@@ -32,8 +38,9 @@ defineProps<{
                         >{{ game.scores[String(player.id)] ?? 0 }} pts</span
                     >
                 </div>
-                <span v-if="player.id === game?.drawerId" title="Dessine">✏️</span>
-                <span v-if="game?.guessed.includes(player.id)" title="A trouvé">✅</span>
+                <span v-if="isDrawer(player.id)" title="Dessine">✏️</span>
+                <span v-if="hasGuessed(player.id)" title="A trouvé">✅</span>
+                <span v-if="hasVoted(player.id)" title="A voté">🗳️</span>
                 <span v-if="player.id === hostId" class="badge" title="Hôte de la salle">👑</span>
                 <span v-if="player.guest" class="tag">invité</span>
             </li>

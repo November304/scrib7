@@ -1,5 +1,6 @@
 import { randomInt } from 'crypto'
-import { Game } from './game.js'
+import { ClassicGame } from './classic.js'
+import { ImpostorGame } from './impostor.js'
 
 export const CANVAS_WIDTH = 800
 export const CANVAS_HEIGHT = 600
@@ -10,6 +11,8 @@ const EMPTY_ROOM_TTL = 60 * 1000 // une salle vide est supprimée au bout d'une 
 
 // Pas de I/O/0/1 pour éviter les confusions à l'oral
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+const GAME_MODES = { classic: ClassicGame, impostor: ImpostorGame }
 
 const rooms = new Map()
 
@@ -30,7 +33,7 @@ export class Room {
         this.players = new Map() // userId -> { user, ws }
         this.strokes = [] // { id, userId, color, width, points: [[x, y], ...] }
         this.deleteTimer = null
-        this.game = new Game(this)
+        this.game = new ClassicGame(this)
     }
 
     get isFull() {
@@ -70,6 +73,26 @@ export class Room {
         return this.game.canClear(userId)
     }
 
+    // L'hôte lance une partie : on change de mode si besoin
+    startGame(userId, { mode, ...settings }) {
+        if (userId !== this.hostId || this.game.isPlaying) return
+        const GameMode = Object.hasOwn(GAME_MODES, mode) ? GAME_MODES[mode] : ClassicGame
+        if (!(this.game instanceof GameMode)) this.game = new GameMode(this)
+        this.game.start(userId, settings)
+    }
+
+    // Diffuse un message de dessin, sauf si les dessins sont secrets (mode Imposteur)
+    sendDrawing(ws, message, { includeSelf = false } = {}) {
+        if (!this.game.privateDrawings) return this.broadcast(message, includeSelf ? null : ws)
+        if (includeSelf) send(ws, message)
+    }
+
+    // Les traits qu'un joueur a le droit de voir
+    visibleStrokes(userId) {
+        if (!this.game.privateDrawings) return this.strokes
+        return this.strokes.filter((s) => s.userId === userId)
+    }
+
     sendTo(userId, message) {
         const player = this.players.get(userId)
         if (player) send(player.ws, message)
@@ -98,7 +121,7 @@ export class Room {
             code: this.code,
             hostId: this.hostId,
             players: this.playersList(),
-            strokes: this.strokes,
+            strokes: this.visibleStrokes(userId),
             canvas: { width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
             game: this.game.stateFor(userId),
         }
@@ -139,6 +162,13 @@ export class Room {
 
     clear() {
         this.strokes = []
+    }
+
+    // « Tout effacer » : seulement son propre dessin quand chacun dessine en secret
+    clearDrawing(userId) {
+        if (this.game.privateDrawings)
+            this.strokes = this.strokes.filter((s) => s.userId !== userId)
+        else this.clear()
     }
 }
 

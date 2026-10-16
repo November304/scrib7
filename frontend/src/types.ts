@@ -26,24 +26,57 @@ export interface ChatMessage {
 }
 
 export type Difficulty = 'easy' | 'medium' | 'hard'
-export type GamePhase = 'lobby' | 'choosing' | 'drawing' | 'turnEnd' | 'gameEnd'
+export type GameMode = 'classic' | 'impostor'
+export type GamePhase =
+    | 'lobby'
+    | 'gameEnd'
+    // classique
+    | 'choosing'
+    | 'drawing'
+    | 'turnEnd'
+    // imposteur (+ 'drawing')
+    | 'voting'
+    | 'results'
 
-// État de la partie tel que le voit CE joueur (le serveur cache le mot aux autres)
-export interface GameState {
+// État de la partie tel que le voit CE joueur (le serveur cache ce qu'il ne doit pas savoir)
+interface BaseGameState {
     phase: GamePhase
     round: number
     rounds: number
     drawTime: number
-    drawerId: User['id'] | null
     remaining: number // ms avant la fin de la phase
+    scores: Record<string, number>
+}
+
+export interface ClassicGameState extends BaseGameState {
+    mode: 'classic'
+    drawerId: User['id'] | null
     choices: { text: string; difficulty: Difficulty }[] | null // seulement pour le dessinateur
     word: string | null // pour le dessinateur, ceux qui ont trouvé, et en fin de tour
     difficulty: Difficulty | null
-    hint: string | null // "_ _ a _"
-    scores: Record<string, number>
+    hint: string | null // "__a_"
     guessed: User['id'][]
     turnPoints: Record<string, number> | null
 }
+
+export interface ImpostorResult {
+    impostorId: User['id']
+    civilWord: string
+    impostorWord: string
+    caught: boolean
+    votes: Record<string, User['id']> // votant -> joueur désigné
+    points: Record<string, number>
+}
+
+export interface ImpostorGameState extends BaseGameState {
+    mode: 'impostor'
+    myWord: string | null // personne ne sait s'il a le mot de l'imposteur
+    voted: User['id'][] // qui a déjà voté (pas pour qui)
+    myVote: User['id'] | null
+    result: ImpostorResult | null
+}
+
+export type GameState = ClassicGameState | ImpostorGameState
 
 // Messages envoyés par le serveur
 export type ServerMessage =
@@ -63,5 +96,6 @@ export type ServerMessage =
     | { type: 'draw:points'; userId: User['id']; id: string; points: Point[] }
     | { type: 'draw:remove'; id: string }
     | { type: 'draw:clear' }
+    | { type: 'draw:all'; strokes: Stroke[] }
     | ({ type: 'game:state' } & GameState)
     | { type: 'error'; code: string; message: string }

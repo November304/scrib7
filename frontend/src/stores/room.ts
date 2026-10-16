@@ -2,7 +2,16 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { socket } from '@/services/socket'
 import { useAuthStore } from '@/stores/auth'
-import type { ChatMessage, GameState, Player, Point, ServerMessage, Stroke, User } from '@/types'
+import type {
+    ChatMessage,
+    GameMode,
+    GameState,
+    Player,
+    Point,
+    ServerMessage,
+    Stroke,
+    User,
+} from '@/types'
 
 const MAX_MESSAGES = 200
 
@@ -24,11 +33,19 @@ export const useRoomStore = defineStore('room', () => {
     const isPlaying = computed(
         () => game.value != null && !['lobby', 'gameEnd'].includes(game.value.phase),
     )
-    const isDrawer = computed(() => auth.user != null && game.value?.drawerId === auth.user.id)
-    // Mêmes règles que le serveur (qui vérifie de toute façon)
-    const canDraw = computed(() =>
-        isPlaying.value ? game.value!.phase === 'drawing' && isDrawer.value : true,
+    const isDrawer = computed(
+        () =>
+            auth.user != null &&
+            game.value?.mode === 'classic' &&
+            game.value.drawerId === auth.user.id,
     )
+    // Mêmes règles que le serveur (qui vérifie de toute façon)
+    const canDraw = computed(() => {
+        if (!isPlaying.value) return true
+        if (game.value!.phase !== 'drawing') return false
+        // Imposteur : tout le monde dessine en même temps
+        return game.value!.mode === 'impostor' || isDrawer.value
+    })
     const canClear = computed(() => (isPlaying.value ? canDraw.value : isHost.value))
 
     function setGame(state: GameState) {
@@ -95,6 +112,9 @@ export const useRoomStore = defineStore('room', () => {
                 break
             case 'draw:clear':
                 strokes.value = []
+                break
+            case 'draw:all':
+                strokes.value = msg.strokes
                 break
             case 'error':
                 error.value = { code: msg.code, message: msg.message }
@@ -163,12 +183,16 @@ export const useRoomStore = defineStore('room', () => {
 
     // --- Partie ---
 
-    function startGame(settings: { rounds: number; drawTime: number }) {
+    function startGame(settings: { mode: GameMode; rounds: number; drawTime: number }) {
         socket.send({ type: 'game:start', ...settings })
     }
 
     function chooseWord(index: number) {
         socket.send({ type: 'game:choose', index })
+    }
+
+    function vote(targetId: User['id']) {
+        socket.send({ type: 'game:vote', targetId })
     }
 
     return {
@@ -194,5 +218,6 @@ export const useRoomStore = defineStore('room', () => {
         clear,
         startGame,
         chooseWord,
+        vote,
     }
 })

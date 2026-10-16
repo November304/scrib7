@@ -1,8 +1,8 @@
 # scrib7
 
 Jeu multijoueur en ligne inspiré de skribbl.io : un joueur dessine, les autres devinent.
-Mode signature (à venir) : **l'Imposteur**, où tout le monde dessine le même mot à tour de rôle…
-sauf un joueur qui ne le connaît pas et doit bluffer.
+Mode signature : **l'Imposteur**, où tout le monde dessine son mot en secret… mais l'un des
+joueurs a un mot différent, et personne ne sait qui, pas même lui.
 
 ## Stack
 
@@ -33,14 +33,17 @@ backend/
   src/auth.js        /api/auth : register, login, guest, logout, me + middleware requireAuth
   src/ws.js          serveur WebSocket : auth au handshake, validation et routage des messages
   src/rooms.js       salles en mémoire : joueurs, hôte, traits du dessin
-  src/game.js        règles du jeu : tours, minuteurs, devinettes, indices, barème de points
-  src/words.js       mots par difficulté (facile / moyen / difficile)
+  src/game.js        base commune aux modes : réglages, minuteurs, scores, début/fin de partie
+  src/classic.js     mode classique : tours, choix du mot, devinettes, indices, barème
+  src/impostor.js    mode Imposteur : dessins secrets, vote, barème
+  src/words.js       mots par difficulté + paires de mots proches pour l'Imposteur
 frontend/src/
   services/socket.ts connexion WebSocket unique avec reconnexion automatique
   stores/            Pinia : auth (utilisateur courant), room (état de la salle)
   views/             Login, Home, Room
   components/        DrawingBoard (SVG), DrawingToolbar, PlayerList, ChatBox, UserAvatar,
-                     GameHeader (manche, indice, minuteur), GameOverlay (choix du mot, résultats)
+                     GameHeader (mode, manche, mot/indice, minuteur), GameOverlay (choix du mot,
+                     résultats), ImpostorGallery (dessins de tous les joueurs + vote)
 ```
 
 ## Protocole WebSocket
@@ -57,11 +60,15 @@ et ne fait jamais confiance au client.
 | `draw:start`     | `draw:start`                                   |
 | `draw:points`    | `draw:points` (envoyés par paquets ~25/s)      |
 | `draw:undo`      | `draw:remove`                                  |
-| `draw:clear`     | `draw:clear` (hôte uniquement)                 |
+| `draw:clear`     | `draw:clear`                                   |
 | `game:start`     | `game:state` (personnalisé pour chaque joueur) |
-| `game:choose`    |                                                |
+| `game:choose`    | `draw:all` (Imposteur : dévoile les dessins)   |
+| `game:vote`      |                                                |
 
-## Déroulement d'une partie
+En mode Imposteur, pendant la phase de dessin, les messages `draw:*` ne sont pas diffusés aux
+autres joueurs : chacun ne voit que son propre dessin jusqu'au vote.
+
+## Mode classique
 
 `lobby → [choosing → drawing → turnEnd] × tours → gameEnd`
 
@@ -79,6 +86,22 @@ et ne fait jamais confiance au client.
   selon la difficulté ; celui qui trouve gagne de 100 % à 50 % de la base selon sa rapidité, le
   dessinateur jusqu'à 50 % selon la proportion de joueurs qui ont trouvé.
 
+## Mode Imposteur (3 joueurs minimum)
+
+`lobby → [drawing → voting → results] × manches → gameEnd`
+
+- Chaque manche, tout le monde reçoit un mot et le dessine **en même temps et en secret**.
+  Un joueur tiré au sort, l'imposteur, a un mot proche mais différent (chat / tigre,
+  guitare / violon…). **Personne ne sait qui est l'imposteur, pas même lui** : il faut dessiner
+  sans trop en dévoiler.
+- À la fin du temps, tous les dessins sont dévoilés côte à côte et chacun vote (60 s, on peut
+  changer d'avis ; la phase se termine dès que tout le monde a voté). On peut voter pour soi.
+- L'imposteur est **démasqué** s'il reçoit strictement plus de voix que tous les autres
+  (les votes pour soi-même ne comptent pas dans ce décompte).
+- Points (barème en haut de `backend/src/impostor.js`) : +100 par joueur qui vote pour
+  l'imposteur, +200 pour l'imposteur s'il n'est pas démasqué, +150 pour l'imposteur s'il a
+  deviné que c'était lui et a voté pour lui-même.
+
 ## Feuille de route
 
 - [x] Comptes (bcrypt + JWT) et mode invité
@@ -86,7 +109,7 @@ et ne fait jamais confiance au client.
 - [x] Dessin SVG synchronisé en temps réel, gomme, annuler, chat
 - [x] Mode classique : manches, choix du mot (3 difficultés), minuteur, indices, score
 - [ ] Équilibrage du barème de points
-- [ ] Mode Imposteur : rôles cachés, tours de dessin, vote
+- [x] Mode Imposteur : mots secrets, dessins simultanés, vote
 - [ ] Roulette de malus, replay final animé
 - [ ] Upload d'avatar et de packs de mots, historique des parties (Prisma)
 - [ ] Galerie (IndexedDB), PWA, Web Component `<scribble-gallery>`
