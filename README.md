@@ -98,9 +98,8 @@ autres joueurs : chacun ne voit que son propre dessin jusqu'au vote.
   changer d'avis ; la phase se termine dès que tout le monde a voté). On peut voter pour soi.
 - L'imposteur est **démasqué** s'il reçoit strictement plus de voix que tous les autres
   (les votes pour soi-même ne comptent pas dans ce décompte).
-- Points (barème en haut de `backend/src/impostor.js`) : +100 par joueur qui vote pour
-  l'imposteur, +200 pour l'imposteur s'il n'est pas démasqué, +150 pour l'imposteur s'il a
-  deviné que c'était lui et a voté pour lui-même.
+- Points : +100 pour chaque joueur qui vote pour l'imposteur, qu'il soit l'imposteur ou non.
+  C'est le seul barème.
 
 ## Feuille de route
 

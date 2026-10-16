@@ -11,13 +11,8 @@ import { pickPair } from './words.js'
 const VOTE_TIME = 60 * 1000
 const RESULTS_TIME = 10 * 1000
 
-// --- Points : tout le barème est ici, pour pouvoir l'équilibrer facilement ---
-
-const POINTS = {
-    foundImpostor: 100, // un joueur vote pour l'imposteur
-    impostorHidden: 200, // l'imposteur n'est pas démasqué
-    selfDesignated: 150, // l'imposteur a deviné que c'était lui et a voté pour lui-même
-}
+// Seul barème : voter pour l'imposteur rapporte des points, qu'on soit l'imposteur ou non
+const FOUND_IMPOSTOR_POINTS = 100
 
 export class ImpostorGame extends BaseGame {
     static mode = 'impostor'
@@ -131,18 +126,11 @@ export class ImpostorGame extends BaseGame {
             [...tally].every(([id, count]) => id === this.impostorId || count < impostorVotes)
 
         const points = new Map()
-        const give = (id, amount) => {
-            points.set(id, (points.get(id) ?? 0) + amount)
-            this.addScore(id, amount)
-        }
         for (const [voter, target] of this.votes) {
-            if (voter === this.impostorId) {
-                if (target === this.impostorId) give(voter, POINTS.selfDesignated)
-            } else if (target === this.impostorId) {
-                give(voter, POINTS.foundImpostor)
-            }
+            if (target !== this.impostorId) continue
+            points.set(voter, FOUND_IMPOSTOR_POINTS)
+            this.addScore(voter, FOUND_IMPOSTOR_POINTS)
         }
-        if (!caught) give(this.impostorId, POINTS.impostorHidden)
 
         this.result = {
             impostorId: this.impostorId,
