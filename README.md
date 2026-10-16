@@ -63,6 +63,7 @@ et ne fait jamais confiance au client.
 | `draw:clear`     | `draw:clear`                                   |
 | `game:start`     | `game:state` (personnalisé pour chaque joueur) |
 | `game:choose`    | `draw:all` (Imposteur : dévoile les dessins)   |
+| `game:finish`    |                                                |
 | `game:vote`      |                                                |
 
 En mode Imposteur, pendant la phase de dessin, les messages `draw:*` ne sont pas diffusés aux
@@ -94,6 +95,8 @@ autres joueurs : chacun ne voit que son propre dessin jusqu'au vote.
   Un joueur tiré au sort, l'imposteur, a un mot proche mais différent (chat / tigre,
   guitare / violon…). **Personne ne sait qui est l'imposteur, pas même lui** : il faut dessiner
   sans trop en dévoiler.
+- Chacun peut cliquer sur « J'ai fini » pour valider son dessin (et revenir dessus tant que
+  tout le monde n'a pas validé) : dès que tous les joueurs ont validé, on passe au vote.
 - À la fin du temps, tous les dessins sont dévoilés côte à côte et chacun vote (60 s, on peut
   changer d'avis ; la phase se termine dès que tout le monde a voté). On peut voter pour soi.
 - L'imposteur est **démasqué** s'il reçoit strictement plus de voix que tous les autres

@@ -12,6 +12,8 @@ const props = defineProps<{
 const isDrawer = (id: Player['id']) => props.game?.mode === 'classic' && props.game.drawerId === id
 const hasGuessed = (id: Player['id']) =>
     props.game?.mode === 'classic' && props.game.guessed.includes(id)
+const hasFinished = (id: Player['id']) =>
+    props.game?.mode === 'impostor' && props.game.finished.includes(id)
 const hasVoted = (id: Player['id']) =>
     props.game?.mode === 'impostor' && props.game.voted.includes(id)
 </script>
@@ -40,6 +42,7 @@ const hasVoted = (id: Player['id']) =>
                 </div>
                 <span v-if="isDrawer(player.id)" title="Dessine">✏️</span>
                 <span v-if="hasGuessed(player.id)" title="A trouvé">✅</span>
+                <span v-if="hasFinished(player.id)" title="A fini son dessin">✅</span>
                 <span v-if="hasVoted(player.id)" title="A voté">🗳️</span>
                 <span v-if="player.id === hostId" class="badge" title="Hôte de la salle">👑</span>
                 <span v-if="player.guest" class="tag">invité</span>

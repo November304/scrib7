@@ -117,6 +117,11 @@ const handlers = {
         if (room.game.mode === 'classic') room.game.choose(ws.user.id, index)
     },
 
+    // Mode Imposteur : valide son dessin (done = false pour revenir dessus)
+    'game:finish'(ws, { done }, room) {
+        if (room.game.mode === 'impostor') room.game.finish(ws.user.id, done === true)
+    },
+
     // Mode Imposteur : vote contre un joueur
     'game:vote'(ws, { targetId }, room) {
         if (room.game.mode === 'impostor') room.game.vote(ws.user.id, targetId)
@@ -132,6 +137,7 @@ const NEEDS_ROOM = new Set([
     'draw:clear',
     'game:start',
     'game:choose',
+    'game:finish',
     'game:vote',
 ])
 

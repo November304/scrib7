@@ -71,6 +71,7 @@ export interface ImpostorResult {
 export interface ImpostorGameState extends BaseGameState {
     mode: 'impostor'
     myWord: string | null // personne ne sait s'il a le mot de l'imposteur
+    finished: User['id'][] // qui a validé son dessin
     voted: User['id'][] // qui a déjà voté (pas pour qui)
     myVote: User['id'] | null
     result: ImpostorResult | null

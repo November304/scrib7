@@ -6,6 +6,7 @@ import { pickPair } from './words.js'
 //   lobby → [manche : drawing → voting → results] × manches → gameEnd
 // Tout le monde reçoit un mot et le dessine en secret, en même temps. Un joueur (l'imposteur)
 // a un mot légèrement différent… et personne ne sait qui c'est, pas même lui !
+// Chacun peut valider son dessin : quand tout le monde a validé, on passe au vote sans attendre.
 // Les dessins sont ensuite tous dévoilés et chacun vote pour celui qu'il pense être l'imposteur.
 
 const VOTE_TIME = 60 * 1000
@@ -31,7 +32,9 @@ export class ImpostorGame extends BaseGame {
 
     canDraw(userId) {
         if (!this.isPlaying) return super.canDraw(userId)
-        return this.phase === 'drawing' && this.room.players.has(userId)
+        return (
+            this.phase === 'drawing' && this.room.players.has(userId) && !this.finished.has(userId)
+        )
     }
 
     // Pendant la manche, « tout effacer » n'efface que son propre dessin
@@ -44,6 +47,7 @@ export class ImpostorGame extends BaseGame {
         this.civilWord = null
         this.impostorWord = null
         this.words = new Map() // userId -> mot à dessiner
+        this.finished = new Set() // joueurs qui ont validé leur dessin
         this.votes = new Map() // votant -> joueur désigné
         this.result = null
     }
@@ -95,6 +99,19 @@ export class ImpostorGame extends BaseGame {
         this.room.broadcast(systemMessage("Tous les dessins sont dévoilés : qui est l'imposteur ?"))
         this.setDeadline(VOTE_TIME, () => this.endVoting())
         this.broadcastState()
+    }
+
+    // Valider son dessin (ou revenir dessus tant que tout le monde n'a pas validé)
+    finish(userId, done) {
+        if (this.phase !== 'drawing' || !this.room.players.has(userId)) return
+        if (done) this.finished.add(userId)
+        else this.finished.delete(userId)
+        if (this.everyoneFinished()) this.startVoting()
+        else this.broadcastState()
+    }
+
+    everyoneFinished() {
+        return [...this.room.players.keys()].every((id) => this.finished.has(id))
     }
 
     // On peut changer d'avis tant que tout le monde n'a pas voté ; voter pour soi est permis
@@ -164,6 +181,8 @@ export class ImpostorGame extends BaseGame {
             return this.nextRound()
         }
         this.votes.delete(userId)
+        this.finished.delete(userId)
+        if (this.phase === 'drawing' && this.everyoneFinished()) return this.startVoting()
         if (this.phase === 'voting' && this.everyoneVoted()) return this.endVoting()
         this.broadcastState()
     }
@@ -174,6 +193,7 @@ export class ImpostorGame extends BaseGame {
         const inRound = this.phase === 'drawing' || this.phase === 'voting'
         return {
             myWord: inRound ? this.wordOf(userId) : null,
+            finished: this.phase === 'drawing' ? [...this.finished] : [],
             voted: this.phase === 'voting' ? [...this.votes.keys()] : [],
             myVote: this.votes.get(userId) ?? null,
             result: this.phase === 'results' ? this.result : null,

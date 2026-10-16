@@ -39,12 +39,19 @@ export const useRoomStore = defineStore('room', () => {
             game.value?.mode === 'classic' &&
             game.value.drawerId === auth.user.id,
     )
+    const hasFinished = computed(
+        () =>
+            auth.user != null &&
+            game.value?.mode === 'impostor' &&
+            game.value.finished.includes(auth.user.id),
+    )
     // Mêmes règles que le serveur (qui vérifie de toute façon)
     const canDraw = computed(() => {
         if (!isPlaying.value) return true
         if (game.value!.phase !== 'drawing') return false
-        // Imposteur : tout le monde dessine en même temps
-        return game.value!.mode === 'impostor' || isDrawer.value
+        // Imposteur : tout le monde dessine en même temps, jusqu'à ce qu'il valide son dessin
+        if (game.value!.mode === 'impostor') return !hasFinished.value
+        return isDrawer.value
     })
     const canClear = computed(() => (isPlaying.value ? canDraw.value : isHost.value))
 
@@ -191,6 +198,10 @@ export const useRoomStore = defineStore('room', () => {
         socket.send({ type: 'game:choose', index })
     }
 
+    function finishDrawing(done: boolean) {
+        socket.send({ type: 'game:finish', done })
+    }
+
     function vote(targetId: User['id']) {
         socket.send({ type: 'game:vote', targetId })
     }
@@ -207,6 +218,7 @@ export const useRoomStore = defineStore('room', () => {
         isHost,
         isPlaying,
         isDrawer,
+        hasFinished,
         canDraw,
         canClear,
         enter,
@@ -218,6 +230,7 @@ export const useRoomStore = defineStore('room', () => {
         clear,
         startGame,
         chooseWord,
+        finishDrawing,
         vote,
     }
 })

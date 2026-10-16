@@ -114,7 +114,9 @@ async function copyInvite() {
                 :players="room.players"
                 :is-host="room.isHost"
                 :is-drawer="room.isDrawer"
+                :has-finished="room.hasFinished"
                 @start="room.startGame"
+                @finish="room.finishDrawing"
             />
             <ImpostorGallery
                 v-if="showGallery && room.game?.mode === 'impostor'"

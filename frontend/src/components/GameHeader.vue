@@ -16,8 +16,12 @@ const props = defineProps<{
     players: Player[]
     isHost: boolean
     isDrawer: boolean
+    hasFinished: boolean
 }>()
-defineEmits<{ start: [settings: { mode: GameMode; rounds: number; drawTime: number }] }>()
+defineEmits<{
+    start: [settings: { mode: GameMode; rounds: number; drawTime: number }]
+    finish: [done: boolean]
+}>()
 
 const mode = ref<GameMode>(props.game.mode)
 const minPlayers = computed(() => MODES[mode.value].minPlayers)
@@ -124,6 +128,19 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
                     <strong>{{ impostor.myWord }}</strong>
                 </template>
             </div>
+
+            <button
+                v-if="impostor?.phase === 'drawing'"
+                class="btn small"
+                :class="{ primary: !hasFinished }"
+                @click="$emit('finish', !hasFinished)"
+            >
+                {{
+                    hasFinished
+                        ? `Modifier (${impostor.finished.length}/${players.length} prêts)`
+                        : "J'ai fini ✓"
+                }}
+            </button>
 
             <span class="timer" :class="{ urgent: game.phase === 'drawing' && seconds <= 10 }">
                 ⏱ {{ seconds }}
