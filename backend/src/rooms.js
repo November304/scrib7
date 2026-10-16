@@ -7,6 +7,7 @@ export const CANVAS_HEIGHT = 600
 const MAX_PLAYERS = 10
 const MAX_STROKES = 2000
 const MAX_POINTS_PER_STROKE = 5000
+const MAX_FILLS = 100 // chaque remplissage est une image (jusqu'à ~60 ko)
 const EMPTY_ROOM_TTL = 60 * 1000 // une salle vide est supprimée au bout d'une minute
 
 // Pas de I/O/0/1 pour éviter les confusions à l'oral
@@ -31,7 +32,7 @@ export class Room {
         this.code = generateCode()
         this.hostId = host.id
         this.players = new Map() // userId -> { user, ws }
-        this.strokes = [] // { id, userId, color, width, points: [[x, y], ...] }
+        this.strokes = [] // { id, userId, color, width, points: [[x, y], ...], image? }
         this.deleteTimer = null
         this.game = new ClassicGame(this)
     }
@@ -136,9 +137,18 @@ export class Room {
         return stroke
     }
 
+    // Pot de peinture : un « trait » sans points, avec l'image de la zone remplie
+    addFill(userId, { id, color, image }) {
+        if (this.strokes.length >= MAX_STROKES) return null
+        if (this.strokes.filter((s) => s.image).length >= MAX_FILLS) return null
+        const stroke = { id, userId, color, width: 0, points: [], image }
+        this.strokes.push(stroke)
+        return stroke
+    }
+
     addPoints(userId, strokeId, points) {
         const stroke = this.findStroke(userId, strokeId)
-        if (!stroke || stroke.points.length + points.length > MAX_POINTS_PER_STROKE) return false
+        if (!stroke || stroke.image || stroke.points.length + points.length > MAX_POINTS_PER_STROKE) return false
         stroke.points.push(...points)
         return true
     }

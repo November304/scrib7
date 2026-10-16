@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { pathOf } from '@/utils'
+import StrokeShape from '@/components/StrokeShape.vue'
 import type { ImpostorGameState, Player, Stroke, User } from '@/types'
 
 const WIDTH = 800
@@ -60,15 +60,10 @@ const drawings = computed(() =>
             >
                 <svg :viewBox="`0 0 ${WIDTH} ${HEIGHT}`" class="thumb">
                     <rect :width="WIDTH" :height="HEIGHT" fill="#ffffff" />
-                    <path
+                    <StrokeShape
                         v-for="stroke in playerStrokes"
                         :key="stroke.id"
-                        :d="pathOf(stroke.points)"
-                        :stroke="stroke.color"
-                        :stroke-width="stroke.width"
-                        fill="none"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        :stroke="stroke"
                     />
                 </svg>
                 <div class="footer">

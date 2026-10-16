@@ -11,6 +11,7 @@ import ChatBox from '@/components/ChatBox.vue'
 import GameHeader from '@/components/GameHeader.vue'
 import GameOverlay from '@/components/GameOverlay.vue'
 import ImpostorGallery from '@/components/ImpostorGallery.vue'
+import type { DrawingTool } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,6 +20,7 @@ const room = useRoomStore()
 
 const color = ref('#000000')
 const width = ref(8)
+const tool = ref<DrawingTool>('brush')
 const copied = ref(false)
 
 function enterFromRoute() {
@@ -131,9 +133,11 @@ async function copyInvite() {
                     :strokes="room.strokes"
                     :color="color"
                     :width="width"
+                    :tool="tool"
                     :disabled="socket.status.value !== 'open' || !room.canDraw"
                     @start="room.startStroke"
                     @points="room.sendPoints"
+                    @fill="room.fill"
                 />
                 <GameOverlay
                     v-if="room.game"
@@ -147,6 +151,7 @@ async function copyInvite() {
                 v-if="room.canDraw"
                 v-model:color="color"
                 v-model:width="width"
+                v-model:tool="tool"
                 :can-clear="room.canClear"
                 @undo="room.undo"
                 @clear="room.clear"

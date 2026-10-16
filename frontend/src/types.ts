@@ -16,7 +16,10 @@ export interface Stroke {
     color: string
     width: number
     points: Point[]
+    image?: string // pot de peinture : zone remplie (PNG transparent), sans points
 }
+
+export type DrawingTool = 'brush' | 'fill'
 
 export interface ChatMessage {
     from: { id: User['id']; username: string } | null // null = message système
@@ -93,7 +96,7 @@ export type ServerMessage =
     | { type: 'room:players'; players: Player[]; hostId: User['id'] }
     | { type: 'room:kicked'; reason: string }
     | ({ type: 'chat' } & ChatMessage)
-    | { type: 'draw:start'; stroke: Stroke }
+    | { type: 'draw:start'; stroke: Stroke } // aussi pour les remplissages
     | { type: 'draw:points'; userId: User['id']; id: string; points: Point[] }
     | { type: 'draw:remove'; id: string }
     | { type: 'draw:clear' }

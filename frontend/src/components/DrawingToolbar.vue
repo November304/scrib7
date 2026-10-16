@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DrawingTool } from '@/types'
+
 const COLORS = [
     '#000000',
     '#7f7f7f',
@@ -20,6 +22,17 @@ const ERASER = '#ffffff'
 
 const color = defineModel<string>('color', { required: true })
 const width = defineModel<number>('width', { required: true })
+const tool = defineModel<DrawingTool>('tool', { required: true })
+
+function pickWidth(w: number) {
+    width.value = w
+    tool.value = 'brush'
+}
+
+function pickEraser() {
+    color.value = ERASER
+    tool.value = 'brush'
+}
 defineProps<{ canClear: boolean }>()
 defineEmits<{ undo: []; clear: [] }>()
 </script>
@@ -52,7 +65,7 @@ defineEmits<{ undo: []; clear: [] }>()
                 :aria-label="`Épaisseur ${w}`"
                 role="radio"
                 :aria-checked="width === w"
-                @click="width = w"
+                @click="pickWidth(w)"
             >
                 <svg viewBox="0 0 32 32" width="28" height="28">
                     <circle cx="16" cy="16" :r="Math.max(w / 2.4, 2)" fill="currentColor" />
@@ -63,9 +76,9 @@ defineEmits<{ undo: []; clear: [] }>()
         <div class="actions">
             <button
                 class="tool"
-                :class="{ active: color === ERASER }"
+                :class="{ active: tool === 'brush' && color === ERASER }"
                 title="Gomme"
-                @click="color = ERASER"
+                @click="pickEraser"
             >
                 <svg
                     viewBox="0 0 24 24"
@@ -78,6 +91,26 @@ defineEmits<{ undo: []; clear: [] }>()
                 >
                     <path d="M16 3l5 5-11 11H5l-2-2 13-14z" />
                     <path d="M9 21h12" />
+                </svg>
+            </button>
+            <button
+                class="tool"
+                :class="{ active: tool === 'fill' }"
+                title="Pot de peinture"
+                @click="tool = tool === 'fill' ? 'brush' : 'fill'"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    width="22"
+                    height="22"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                >
+                    <path d="M11 3L3 11l7 7 8-8-7-7z" />
+                    <path d="M3 11h15" />
+                    <path d="M20 14s2 2.6 2 4a2 2 0 01-4 0c0-1.4 2-4 2-4z" fill="currentColor" />
                 </svg>
             </button>
             <button class="tool" title="Annuler (Ctrl+Z)" @click="$emit('undo')">

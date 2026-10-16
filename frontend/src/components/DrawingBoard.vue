@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
-import { pathOf } from '@/utils'
-import type { Point, Stroke } from '@/types'
+import StrokeShape from '@/components/StrokeShape.vue'
+import { computeFill } from '@/fill'
+import type { DrawingTool, Point, Stroke } from '@/types'
 
 const WIDTH = 800
 const HEIGHT = 600
@@ -12,18 +13,21 @@ const props = defineProps<{
     strokes: Stroke[]
     color: string
     width: number
+    tool: DrawingTool
     disabled?: boolean
 }>()
 
 const emit = defineEmits<{
     start: [stroke: Stroke]
     points: [id: string, points: Point[]]
+    fill: [stroke: Stroke]
 }>()
 
 const svg = ref<SVGSVGElement>()
 let current: Stroke | null = null
 let pending: Point[] = []
 let flushTimer: ReturnType<typeof setInterval> | undefined
+let filling = false
 
 // Coordonnées écran -> coordonnées du viewBox, quelle que soit la taille affichée
 function toSvgPoint(event: PointerEvent): Point {
@@ -41,8 +45,23 @@ function flush() {
     }
 }
 
+async function fillAt(point: Point) {
+    if (filling) return
+    filling = true
+    try {
+        const color = props.color
+        const image = await computeFill(props.strokes, point, color)
+        if (image && !props.disabled) {
+            emit('fill', { id: crypto.randomUUID(), userId: 0, color, width: 0, points: [], image })
+        }
+    } finally {
+        filling = false
+    }
+}
+
 function onPointerDown(event: PointerEvent) {
     if (props.disabled || event.button !== 0) return
+    if (props.tool === 'fill') return fillAt(toSvgPoint(event))
     svg.value!.setPointerCapture(event.pointerId)
     current = {
         id: crypto.randomUUID(),
@@ -84,7 +103,7 @@ onBeforeUnmount(onPointerUp)
     <svg
         ref="svg"
         class="board"
-        :class="{ disabled }"
+        :class="{ disabled, fill: tool === 'fill' }"
         :viewBox="`0 0 ${WIDTH} ${HEIGHT}`"
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
@@ -92,16 +111,7 @@ onBeforeUnmount(onPointerUp)
         @pointercancel="onPointerUp"
     >
         <rect :width="WIDTH" :height="HEIGHT" fill="#ffffff" />
-        <path
-            v-for="stroke in strokes"
-            :key="stroke.id"
-            :d="pathOf(stroke.points)"
-            :stroke="stroke.color"
-            :stroke-width="stroke.width"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-        />
+        <StrokeShape v-for="stroke in strokes" :key="stroke.id" :stroke="stroke" />
     </svg>
 </template>
 
@@ -120,6 +130,9 @@ onBeforeUnmount(onPointerUp)
 }
 .board:not(.disabled) {
     box-shadow: var(--accent-glow);
+}
+.board.fill {
+    cursor: cell;
 }
 .board.disabled {
     cursor: not-allowed;

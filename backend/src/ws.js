@@ -7,11 +7,17 @@ const HEARTBEAT_INTERVAL = 30 * 1000
 const MAX_MESSAGE_SIZE = 64 * 1024
 const MAX_CHAT_LENGTH = 200
 const MAX_POINTS_PER_MESSAGE = 200
+const MAX_FILL_IMAGE = 60 * 1000 // caractères (data URL du pot de peinture)
 
 // --- Validation des messages reçus (on ne fait jamais confiance au client) ---
 
 const isColor = (c) => typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c)
 const isWidth = (w) => Number.isFinite(w) && w >= 1 && w <= 60
+// Pot de peinture : uniquement une image PNG en base64 (affichée dans un <image> SVG)
+const isFillImage = (img) =>
+    typeof img === 'string' &&
+    img.length <= MAX_FILL_IMAGE &&
+    /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/.test(img)
 const isStrokeId = (id) => typeof id === 'string' && /^[\w-]{1,40}$/.test(id)
 const isPoint = (p) =>
     Array.isArray(p) &&
@@ -96,6 +102,14 @@ const handlers = {
         }
     },
 
+    // Pot de peinture : la zone remplie est calculée par le client et envoyée en image
+    'draw:fill'(ws, { id, color, image }, room) {
+        if (!room.canDraw(ws.user.id)) return
+        if (!isStrokeId(id) || !isColor(color) || !isFillImage(image)) return
+        const stroke = room.addFill(ws.user.id, { id, color, image })
+        if (stroke) room.sendDrawing(ws, { type: 'draw:start', stroke })
+    },
+
     'draw:undo'(ws, _msg, room) {
         if (!room.canDraw(ws.user.id)) return
         const id = room.undo(ws.user.id)
@@ -133,6 +147,7 @@ const NEEDS_ROOM = new Set([
     'chat',
     'draw:start',
     'draw:points',
+    'draw:fill',
     'draw:undo',
     'draw:clear',
     'game:start',

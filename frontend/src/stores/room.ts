@@ -176,6 +176,11 @@ export const useRoomStore = defineStore('room', () => {
         })
     }
 
+    function fill(stroke: Stroke) {
+        strokes.value.push(stroke)
+        socket.send({ type: 'draw:fill', id: stroke.id, color: stroke.color, image: stroke.image })
+    }
+
     function sendPoints(id: string, points: Point[]) {
         socket.send({ type: 'draw:points', id, points })
     }
@@ -226,6 +231,7 @@ export const useRoomStore = defineStore('room', () => {
         sendChat,
         startStroke,
         sendPoints,
+        fill,
         undo,
         clear,
         startGame,

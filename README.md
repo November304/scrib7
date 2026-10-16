@@ -59,6 +59,7 @@ et ne fait jamais confiance au client.
 | `chat`           | `chat`                                         |
 | `draw:start`     | `draw:start`                                   |
 | `draw:points`    | `draw:points` (envoyés par paquets ~25/s)      |
+| `draw:fill`      | `draw:start` (remplissage : trait avec image)  |
 | `draw:undo`      | `draw:remove`                                  |
 | `draw:clear`     | `draw:clear`                                   |
 | `game:start`     | `game:state` (personnalisé pour chaque joueur) |
@@ -108,7 +109,7 @@ autres joueurs : chacun ne voit que son propre dessin jusqu'au vote.
 
 - [x] Comptes (bcrypt + JWT) et mode invité
 - [x] Salles avec code, lien d'invitation, transfert d'hôte
-- [x] Dessin SVG synchronisé en temps réel, gomme, annuler, chat
+- [x] Dessin SVG synchronisé en temps réel, gomme, pot de peinture, annuler, chat
 - [x] Mode classique : manches, choix du mot (3 difficultés), minuteur, indices, score
 - [ ] Équilibrage du barème de points
 - [x] Mode Imposteur : mots secrets, dessins simultanés, vote
