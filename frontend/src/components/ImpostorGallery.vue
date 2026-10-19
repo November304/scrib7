@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import StrokeShape from '@/components/StrokeShape.vue'
+import { CANVAS_COLOR } from '@/utils'
 import type { ImpostorGameState, Player, Stroke, User } from '@/types'
 
 const WIDTH = 800
@@ -59,7 +60,7 @@ const drawings = computed(() =>
                 }"
             >
                 <svg :viewBox="`0 0 ${WIDTH} ${HEIGHT}`" class="thumb">
-                    <rect :width="WIDTH" :height="HEIGHT" fill="#ffffff" />
+                    <rect :width="WIDTH" :height="HEIGHT" :fill="CANVAS_COLOR" />
                     <StrokeShape
                         v-for="stroke in playerStrokes"
                         :key="stroke.id"

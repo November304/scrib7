@@ -1,4 +1,4 @@
-import { pathOf } from '@/utils'
+import { CANVAS_COLOR, pathOf } from '@/utils'
 import type { Point, Stroke } from '@/types'
 
 // Pot de peinture : on redessine les traits sur un canvas caché, on remplit la zone cliquée
@@ -33,7 +33,7 @@ export async function computeFill(strokes: Stroke[], [x, y]: Point, color: strin
     canvas.width = WIDTH
     canvas.height = HEIGHT
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!
-    ctx.fillStyle = '#ffffff'
+    ctx.fillStyle = CANVAS_COLOR
     ctx.fillRect(0, 0, WIDTH, HEIGHT)
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'

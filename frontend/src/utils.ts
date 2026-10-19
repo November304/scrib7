@@ -1,6 +1,9 @@
 import { onBeforeUnmount, ref } from 'vue'
 import type { Difficulty, Point } from '@/types'
 
+// Fond du tableau (= --canvas) : le dessin, la gomme et le pot de peinture partagent cette couleur
+export const CANVAS_COLOR = '#fbf7ee'
+
 // Couleur néon stable dérivée d'un identifiant (initiales des avatars, lisible sur fond sombre)
 export function colorFromId(id: string | number) {
     let hash = 0

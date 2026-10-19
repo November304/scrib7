@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CANVAS_COLOR } from '@/utils'
 import type { DrawingTool } from '@/types'
 
 const COLORS = [
@@ -18,7 +19,7 @@ const COLORS = [
     '#ffccbc',
 ]
 const WIDTHS = [3, 8, 16, 32]
-const ERASER = '#ffffff'
+const ERASER = CANVAS_COLOR
 
 const color = defineModel<string>('color', { required: true })
 const width = defineModel<number>('width', { required: true })
