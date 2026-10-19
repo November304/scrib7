@@ -1,30 +1,90 @@
-/* Thème néon sombre uniquement : assumé via color-scheme plutôt qu'un thème clair à moitié fini */
+/* Direction « Carnet kraft » : voir DESIGN.md à la racine. Thème clair uniquement, assumé. */
 :root {
-    --bg: #0a0c13;
-    --surface: #121621;
-    --surface-2: #1a1f2e;
-    --border: #262c3d;
-    /* Bordures des éléments interactifs : contraste ≥ 3:1 avec les surfaces */
-    --border-strong: #646f8a;
-    --text: #e6eaf4;
-    --text-muted: #8e97ae;
-    --accent: #2ee6f0;
-    --accent-soft: #0f2a33;
-    --accent-contrast: #04121a;
-    --accent-glow: 0 0 0 1px rgb(46 230 240 / 0.55), 0 0 18px rgb(46 230 240 / 0.3);
-    --accent-text-glow: 0 0 12px rgb(46 230 240 / 0.55);
-    --danger: #ff4f9a;
-    --danger-glow: 0 0 12px rgb(255 79 154 / 0.5);
-    --success: #3ddc8a;
-    --success-soft: #10291e;
-    --warning: #ffb547;
-    --overlay: rgb(10 12 19 / 0.88);
-    --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, Consolas, monospace;
-    --radius: 4px;
-    --radius-sm: 2px;
-    --shadow: 0 0 0 1px var(--border), 0 8px 24px rgb(0 0 0 / 0.35);
-    --transition: 150ms ease-out;
-    color-scheme: dark;
+    /* Matières */
+    --kraft: #c4a57a;
+    --kraft-deep: #a88758;
+    --paper: #f8f1e2;
+    --paper-2: #efe4cc;
+    --paper-bright: #fffcf5;
+    --canvas: #fbf7ee; /* fond du dessin ET couleur de la gomme */
+    --tape: rgb(233 221 176 / 0.88);
+
+    /* Encres */
+    --ink: #2a1f16;
+    --ink-soft: #5e5145;
+    --line: #8a7660; /* bordures d'éléments interactifs : ≥ 3:1 sur papier */
+    --blue: #2b4c9a;
+    --blue-deep: #1f3873;
+    --red: #b3362b;
+    --green: #3f7a4a;
+
+    /* Typo */
+    --font-text: Alegreya, Georgia, 'Times New Roman', serif;
+    --font-hand: Kalam, 'Segoe Print', 'Comic Sans MS', cursive;
+    --fs-display: clamp(2rem, 1.4rem + 2.4vw, 2.75rem);
+    --fs-title: 1.375rem;
+    --fs-body: 1.0625rem;
+    --fs-small: 0.9375rem;
+    --fs-word: clamp(1.4rem, 1.1rem + 1.2vw, 1.875rem);
+
+    /* Formes */
+    --radius-paper: 2px;
+    --radius-btn: 3px;
+    --tilt-slight: 0.6deg;
+    --tilt-soft: 1.5deg;
+    --tilt-strong: 2.5deg;
+
+    /* Profondeur : feuilles posées, ombre brune décalée vers le bas, jamais de halo */
+    --shadow-sheet: 0 1px 1px rgb(60 40 20 / 0.22), 0 6px 14px -6px rgb(60 40 20 / 0.35);
+    --shadow-print: 0 2px 5px -1px rgb(60 40 20 / 0.4);
+    --shadow-lift: 0 2px 2px rgb(60 40 20 / 0.2), 0 14px 28px -10px rgb(60 40 20 / 0.45);
+    --shadow-press: 0 2px 0 var(--blue-deep);
+
+    /* Textures et attaches (générées par design-assets/generate.py) */
+    --tex-kraft: url('/assets/scrapbook/kraft.webp');
+    --tex-paper: url('/assets/scrapbook/paper-grain.webp');
+
+    /* Mouvement */
+    --dur-quick: 140ms;
+    --dur-settle: 220ms;
+    --dur-stamp: 180ms;
+    --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* Alias temporaires de l'ancien thème, supprimés en fin de migration */
+    --bg: var(--kraft);
+    --surface: var(--paper);
+    --surface-2: var(--paper-2);
+    --border: var(--paper-2);
+    --border-strong: var(--line);
+    --text: var(--ink);
+    --text-muted: var(--ink-soft);
+    --accent: var(--blue);
+    --accent-soft: var(--paper-2);
+    --accent-contrast: var(--paper);
+    --accent-glow: none;
+    --accent-text-glow: none;
+    --danger: var(--red);
+    --danger-glow: none;
+    --success: var(--green);
+    --success-soft: var(--paper-2);
+    --warning: var(--red);
+    --overlay: rgb(42 31 22 / 0.35);
+    --font-mono: var(--font-text);
+    --radius: var(--radius-paper);
+    --radius-sm: var(--radius-paper);
+    --shadow: var(--shadow-sheet);
+    --transition: var(--dur-quick) ease-out;
+
+    color-scheme: light;
+}
+
+/* Sur petit écran, les rotations sont divisées par deux : lisibilité d'abord */
+@media (max-width: 600px) {
+    :root {
+        --tilt-slight: 0.3deg;
+        --tilt-soft: 0.75deg;
+        --tilt-strong: 1.25deg;
+    }
 }
 
 *,
@@ -35,32 +95,63 @@
 
 body {
     margin: 0;
-    font-family:
-        system-ui,
-        -apple-system,
-        'Segoe UI',
-        Roboto,
-        sans-serif;
-    line-height: 1.5;
-    color: var(--text);
-    background: var(--bg);
+    font-family: var(--font-text);
+    font-size: var(--fs-body);
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--kraft) var(--tex-kraft);
+    caret-color: var(--blue);
+    font-variant-numeric: lining-nums;
 }
 
+::selection {
+    color: var(--paper);
+    background: var(--blue);
+}
+
+/* Barres de défilement aux couleurs du carnet (Firefox et Chromium récents) */
+* {
+    scrollbar-color: var(--line) transparent;
+    scrollbar-width: thin;
+}
+
+h1,
 h2 {
     margin: 0 0 0.6rem;
-    font-size: 1.05rem;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+h1 {
+    font-size: var(--fs-display);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+}
+h2 {
+    font-size: var(--fs-title);
+    font-weight: 700;
+}
+
+a {
+    color: var(--blue);
+    text-underline-offset: 0.2em;
 }
 
 :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--blue);
     outline-offset: 2px;
 }
 
+/* ---------- Feuilles de papier ---------- */
+
 .card,
 .panel {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    position: relative;
+    color: var(--ink);
+    background: var(--paper) var(--tex-paper);
+    background-blend-mode: multiply;
+    border-radius: var(--radius-paper);
+    box-shadow: var(--shadow-sheet);
 }
 .card {
     padding: 1.75rem;
@@ -73,95 +164,219 @@ h2 {
         padding: 1.25rem;
     }
 }
-/* Titres de panneaux discrets, style « étiquette » */
-.panel > h2 {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+
+/* Masking tape : une bande au centre du haut, ou une à chaque coin du haut */
+.taped::before,
+.taped-corners::before,
+.taped-corners::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    width: 76px;
+    height: 21px;
+    background: url('/assets/scrapbook/tape-1.svg') 0 0 / 100% 100%;
+    pointer-events: none;
+}
+.taped::before {
+    top: -10px;
+    left: calc(50% - 38px);
+    rotate: -2deg;
+}
+.taped-corners::before {
+    top: -4px;
+    left: -24px;
+    rotate: -36deg;
+    background-image: url('/assets/scrapbook/tape-2.svg');
+}
+.taped-corners::after {
+    top: -4px;
+    right: -24px;
+    rotate: 34deg;
+    background-image: url('/assets/scrapbook/tape-3.svg');
 }
 
+/* Tirage photo : bord papier clair, coins photo noirs */
+.print {
+    position: relative;
+    display: inline-block;
+    padding: 4px;
+    line-height: 0;
+    background: var(--paper-bright);
+    box-shadow: var(--shadow-print);
+}
+.print::before,
+.print::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    width: 10px;
+    height: 10px;
+    background: url('/assets/scrapbook/photo-corner.svg') 0 0 / 100%;
+}
+.print::before {
+    left: 1px;
+}
+.print::after {
+    right: 1px;
+    scale: -1 1;
+}
+
+/* Icônes au trait d'encre, colorées par currentColor */
+.icon {
+    display: inline-block;
+    flex: none;
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.2em;
+    background: currentColor;
+    mask: var(--icon) center / contain no-repeat;
+}
+.icon-pencil {
+    --icon: url('/assets/scrapbook/icons/pencil.svg');
+}
+.icon-check {
+    --icon: url('/assets/scrapbook/icons/check.svg');
+}
+.icon-ballot {
+    --icon: url('/assets/scrapbook/icons/ballot.svg');
+}
+.icon-crown {
+    --icon: url('/assets/scrapbook/icons/crown.svg');
+}
+.icon-clock {
+    --icon: url('/assets/scrapbook/icons/clock.svg');
+}
+.icon-copy {
+    --icon: url('/assets/scrapbook/icons/copy.svg');
+}
+
+/* Tampon encreur rond (minuteur, rangs) */
+.stamp {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    font-size: 1.375rem;
+    font-weight: 800;
+    font-variant-numeric: lining-nums tabular-nums;
+    line-height: 1;
+    color: var(--red);
+    background: url('/assets/scrapbook/stamp-ring.svg') 0 0 / 100%;
+    rotate: -8deg;
+}
+
+.hand {
+    font-family: var(--font-hand);
+}
 .muted {
-    color: var(--text-muted);
+    color: var(--ink-soft);
 }
 .accent {
-    color: var(--accent);
+    color: var(--blue);
 }
 .error {
     margin: 0;
-    color: var(--danger);
+    color: var(--red);
 }
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* ---------- Champs ---------- */
 
 input,
 select {
-    padding: 0.6rem 0.75rem;
+    min-height: 44px;
+    padding: 0.55rem 0.75rem;
     font: inherit;
-    color: var(--text);
-    background: var(--surface-2);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    transition:
-        border-color var(--transition),
-        box-shadow var(--transition);
+    color: var(--ink);
+    background: var(--paper-bright);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-paper);
+    transition: border-color var(--dur-quick) ease-out;
 }
 input::placeholder {
-    color: var(--text-muted);
+    color: var(--ink-soft);
 }
 input:focus-visible,
 select:focus-visible {
-    border-color: var(--accent);
-    outline: none;
-    box-shadow: var(--accent-glow);
+    border-color: var(--blue);
 }
 .chat input {
     width: 100%;
 }
 
+/* ---------- Boutons ---------- */
+
 .btn {
     display: inline-flex;
+    gap: 0.4em;
     align-items: center;
     justify-content: center;
-    padding: 0.6rem 1.1rem;
+    min-height: 44px;
+    padding: 0.6rem 1.15rem;
     font: inherit;
     font-weight: 700;
-    color: var(--text);
+    line-height: 1;
+    color: var(--ink);
     text-decoration: none;
-    background: var(--surface-2);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
+    background: var(--paper-bright);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-btn);
     cursor: pointer;
     transition:
-        color var(--transition),
-        border-color var(--transition),
-        box-shadow var(--transition),
-        filter var(--transition);
+        background-color var(--dur-quick) ease-out,
+        border-color var(--dur-quick) ease-out,
+        box-shadow var(--dur-quick) ease-out,
+        translate var(--dur-quick) ease-out;
 }
 .btn:hover:not(:disabled) {
-    color: var(--accent);
-    border-color: var(--accent);
+    background: var(--paper-2);
 }
 .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.55;
     cursor: not-allowed;
 }
 .btn.primary {
-    color: var(--accent-contrast);
-    background: var(--accent);
-    border-color: var(--accent);
-    box-shadow: var(--accent-glow);
+    color: var(--paper);
+    background: var(--blue);
+    border-color: var(--blue);
+    box-shadow: var(--shadow-press);
 }
 .btn.primary:hover:not(:disabled) {
-    color: var(--accent-contrast);
-    filter: brightness(1.1);
+    background: var(--blue-deep);
+}
+.btn.primary:active:not(:disabled) {
+    translate: 0 2px;
+    box-shadow: none;
+}
+.btn.danger {
+    color: var(--red);
+    border-color: var(--red);
 }
 .btn.ghost {
     background: none;
     border-color: transparent;
 }
+.btn.ghost:hover:not(:disabled) {
+    text-decoration: underline;
+    background: none;
+}
 .btn.small {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.875rem;
+    min-height: 36px;
+    padding: 0.4rem 0.75rem;
+    font-size: var(--fs-small);
+}
+/* Au doigt, même les petits boutons gardent une cible de 44px */
+@media (pointer: coarse) {
+    .btn.small {
+        min-height: 44px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -169,5 +384,6 @@ select:focus-visible {
     *::before,
     *::after {
         transition: none !important;
+        animation: none !important;
     }
 }
