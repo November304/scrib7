@@ -90,7 +90,7 @@ async function copyInvite() {
         <p class="muted">Connexion à la salle…</p>
     </div>
 
-    <div v-else class="room">
+    <div v-else class="room" :class="{ 'in-lobby': !room.game || room.game.phase === 'lobby' }">
         <aside class="side">
             <!-- Étiquette à bagage : le code de la salle à donner aux amis -->
             <div class="code-panel">
@@ -261,6 +261,11 @@ async function copyInvite() {
     }
     .side {
         flex-direction: column-reverse;
+    }
+    /* Avant la partie, le code à partager passe en premier */
+    .in-lobby .side {
+        order: -3;
+        flex-direction: column;
     }
     .code-panel {
         align-self: flex-start;

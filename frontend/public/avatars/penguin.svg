@@ -9,5 +9,4 @@
     <circle cx="21" cy="42" r="3" fill="#ff8fab" opacity="0.6" />
     <circle cx="43" cy="42" r="3" fill="#ff8fab" opacity="0.6" />
     <path d="M28.5 41h7L32 46z" fill="#fb8500" />
-    <rect x="1" y="1" width="62" height="62" fill="none" stroke="#ffb547" stroke-width="2" />
 </svg>

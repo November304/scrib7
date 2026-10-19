@@ -48,6 +48,7 @@ async function logout() {
     line-height: 1;
     color: var(--ink);
     text-decoration: none;
+    white-space: nowrap;
 }
 .logo img {
     filter: drop-shadow(0 2px 2px rgb(60 40 20 / 0.3));
@@ -86,6 +87,9 @@ main {
     }
 }
 @media (max-width: 480px) {
+    .logo {
+        font-size: var(--fs-title);
+    }
     .logo img {
         display: none;
     }
