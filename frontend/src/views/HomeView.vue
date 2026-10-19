@@ -111,11 +111,11 @@ function join() {
     text-transform: uppercase;
     background:
         repeating-linear-gradient(
-            90deg,
-            #0000 0 calc(1.8ch - 1.5px),
-            var(--line) calc(1.8ch - 1.5px) 1.8ch
-        )
-        0 0 / calc(9ch - 1.5px) 100% no-repeat padding-box,
+                90deg,
+                #0000 0 calc(1.8ch - 1.5px),
+                var(--line) calc(1.8ch - 1.5px) 1.8ch
+            )
+            0 0 / calc(9ch - 1.5px) 100% no-repeat padding-box,
         var(--paper-bright);
 }
 .code-input::placeholder {

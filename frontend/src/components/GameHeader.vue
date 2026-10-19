@@ -143,7 +143,10 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
             </button>
 
             <!-- Tampon du minuteur : sous 10 s il s'encre en plein et dit « vite ! » -->
-            <span class="stamp timer" :class="{ urgent: game.phase === 'drawing' && seconds <= 10 }">
+            <span
+                class="stamp timer"
+                :class="{ urgent: game.phase === 'drawing' && seconds <= 10 }"
+            >
                 <span class="sr-only">Temps restant :</span>
                 <span>{{ seconds }}<span class="sr-only"> secondes</span></span>
                 <small v-if="game.phase === 'drawing' && seconds <= 10" class="hand">vite !</small>

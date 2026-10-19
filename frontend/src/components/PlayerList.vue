@@ -55,7 +55,11 @@ const hasVoted = (id: Player['id']) =>
                         <span class="icon icon-check" aria-hidden="true"></span>
                         <span class="sr-only">A trouvé</span>
                     </span>
-                    <span v-if="hasFinished(player.id)" class="state done" title="A fini son dessin">
+                    <span
+                        v-if="hasFinished(player.id)"
+                        class="state done"
+                        title="A fini son dessin"
+                    >
                         <span class="icon icon-check" aria-hidden="true"></span>
                         <span class="sr-only">A fini son dessin</span>
                     </span>

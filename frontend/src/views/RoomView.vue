@@ -114,7 +114,9 @@ async function copyInvite() {
         </aside>
 
         <div class="stage">
-            <p v-if="socket.status.value !== 'open'" class="reconnecting" role="status">Reconnexion en cours…</p>
+            <p v-if="socket.status.value !== 'open'" class="reconnecting" role="status">
+                Reconnexion en cours…
+            </p>
             <GameHeader
                 v-if="room.game"
                 :game="room.game"

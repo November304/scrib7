@@ -39,8 +39,12 @@ const drawings = computed(() =>
                 {{ result.caught ? '… démasqué !' : 'et s’en sort !' }}
             </h2>
             <p class="words">
-                <span>Mot des joueurs : <b>{{ result.civilWord }}</b></span>
-                <span>Mot de l'imposteur : <b>{{ result.impostorWord }}</b></span>
+                <span
+                    >Mot des joueurs : <b>{{ result.civilWord }}</b></span
+                >
+                <span
+                    >Mot de l'imposteur : <b>{{ result.impostorWord }}</b></span
+                >
             </p>
         </header>
         <p v-else class="panel intro">
@@ -68,9 +72,7 @@ const drawings = computed(() =>
                         :stroke="stroke"
                     />
                 </svg>
-                <span v-if="result?.impostorId === player.id" class="verdict-stamp"
-                    >Imposteur</span
-                >
+                <span v-if="result?.impostorId === player.id" class="verdict-stamp">Imposteur</span>
                 <div class="footer">
                     <span class="name hand">
                         {{ player.username }}<template v-if="player.id === meId"> (toi)</template>
