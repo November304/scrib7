@@ -50,31 +50,6 @@
     --dur-stamp: 180ms;
     --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-    /* Alias temporaires de l'ancien thème, supprimés en fin de migration */
-    --bg: var(--kraft);
-    --surface: var(--paper);
-    --surface-2: var(--paper-2);
-    --border: var(--paper-2);
-    --border-strong: var(--line);
-    --text: var(--ink);
-    --text-muted: var(--ink-soft);
-    --accent: var(--blue);
-    --accent-soft: var(--paper-2);
-    --accent-contrast: var(--paper);
-    --accent-glow: none;
-    --accent-text-glow: none;
-    --danger: var(--red);
-    --danger-glow: none;
-    --success: var(--green);
-    --success-soft: var(--paper-2);
-    --warning: var(--red);
-    --overlay: rgb(42 31 22 / 0.35);
-    --font-mono: var(--font-text);
-    --radius: var(--radius-paper);
-    --radius-sm: var(--radius-paper);
-    --shadow: var(--shadow-sheet);
-    --transition: var(--dur-quick) ease-out;
-
     color-scheme: light;
 }
 

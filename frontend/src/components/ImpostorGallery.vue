@@ -109,13 +109,13 @@ const drawings = computed(() =>
 }
 .verdict {
     padding: 1rem 1.25rem;
-    border-top: 4px solid var(--red);
-}
-.verdict.caught {
-    border-top-color: var(--green);
 }
 .verdict h2 {
     margin-bottom: 0.3rem;
+    color: var(--red);
+}
+.verdict.caught h2 {
+    color: var(--green);
 }
 .words {
     display: flex;
