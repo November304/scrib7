@@ -387,3 +387,21 @@ select:focus-visible {
         animation: none !important;
     }
 }
+
+/* Papier déchiré en bas : le fond vit dans un calque masqué, pour que le tape ne soit pas rogné */
+.torn {
+    position: relative;
+    isolation: isolate;
+    filter: drop-shadow(0 1px 1px rgb(60 40 20 / 0.22)) drop-shadow(0 5px 6px rgb(60 40 20 / 0.22));
+}
+.torn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--paper) var(--tex-paper);
+    background-blend-mode: multiply;
+    mask:
+        linear-gradient(#000 0 0) top / 100% calc(100% - 13px) no-repeat,
+        url('/assets/scrapbook/torn-edge.svg') bottom / 240px 14px repeat-x;
+}
