@@ -48,9 +48,23 @@ typography:
     fontSize: 0.9375rem
     fontWeight: 400
     lineHeight: 1.45
+  lead:
+    fontFamily: "Alegreya, Georgia, serif"
+    fontSize: 1.125rem
+    fontWeight: 700
+    lineHeight: 1.3
+  mark:
+    fontFamily: "Alegreya, Georgia, serif"
+    fontSize: 2rem
+    fontWeight: 800
+    lineHeight: 1.1
+  ticket:
+    fontFamily: "'Courier New', Courier, monospace"
+    fontSize: 2rem
+    fontWeight: 700
   hand:
     fontFamily: "Kalam, 'Segoe Print', 'Comic Sans MS', cursive"
-    fontSize: 1.0625rem
+    fontSize: 1.125rem
     fontWeight: 400
     lineHeight: 1.35
   word:
@@ -72,6 +86,7 @@ typography:
 rounded:
   paper: 2px
   button: 3px
+  tab: 7px
   stamp: 50%
 
 spacing:
@@ -195,15 +210,19 @@ variables ; aucune couleur hexadécimale propre, sauf nécessité fonctionnelle 
     /* Typo */
     --font-text: Alegreya, Georgia, 'Times New Roman', serif;
     --font-hand: Kalam, 'Segoe Print', 'Comic Sans MS', cursive;
+    --font-ticket: 'Courier New', Courier, monospace;
     --fs-display: clamp(2rem, 1.4rem + 2.4vw, 2.75rem);
     --fs-title: 1.375rem;
     --fs-body: 1.0625rem;
     --fs-small: 0.9375rem;
+    --fs-lead: 1.125rem;
+    --fs-mark: 2rem;
     --fs-word: clamp(1.4rem, 1.1rem + 1.2vw, 1.875rem);
 
     /* Formes */
     --radius-paper: 2px;
     --radius-btn: 3px;
+    --radius-tab: 7px;
     --tilt-slight: 0.6deg;
     --tilt-soft: 1.5deg;
     --tilt-strong: 2.5deg;
@@ -213,6 +232,7 @@ variables ; aucune couleur hexadécimale propre, sauf nécessité fonctionnelle 
     --shadow-print: 0 2px 5px -1px rgb(60 40 20 / 0.4);
     --shadow-lift: 0 2px 2px rgb(60 40 20 / 0.2), 0 14px 28px -10px rgb(60 40 20 / 0.45);
     --shadow-press: 0 2px 0 var(--blue-deep);
+    --shadow-tab: inset 0 -5px 6px -5px rgb(60 40 20 / 0.35);
 
     /* Textures (phase 4 : public/assets/scrapbook/) */
     --tex-kraft: url('/assets/scrapbook/kraft.webp');
@@ -273,7 +293,10 @@ de **fond** aux avatars à initiales, avec le texte en `--ink`. Jamais comme cou
 | Title | Alegreya | 1.375rem | 700 | Titres de feuilles (« Nouvelle partie », « Joueurs »). |
 | Body | Alegreya | 1.0625rem | 400 | Texte courant, chat, formulaires. |
 | Small | Alegreya | 0.9375rem | 400 | Aides, compteurs. Jamais en dessous. |
-| Hand | Kalam | 1.0625rem | 400 | Annotations. |
+| Lead | Alegreya / Kalam | 1.125rem | 700 | Noms des joueurs (Kalam), « Manche 2/3 », gros bouton. |
+| Mark | Alegreya | 2rem | 800 | Wordmark, code de salle. |
+| Ticket | Courier New | 2rem | 700 | Seul usage : le code tapé dans les 5 cases du ticket « Rejoindre » (chasse fixe pour aligner les cases). |
+| Hand | Kalam | 1.0625rem | 400 | Annotations (messages système du chat, légendes). |
 | Word | Alegreya | 1.4–1.875rem | 700, interlettrage 0.3em | Mot / indice à deviner. |
 | Stamp | Alegreya | 1.375rem | 800, chiffres tabulaires | Minuteur, « +100 », rang. |
 

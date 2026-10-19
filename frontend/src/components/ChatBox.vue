@@ -105,7 +105,7 @@ ul {
 }
 li.system {
     font-family: var(--font-hand);
-    font-size: 1rem;
+    font-size: var(--fs-body);
     color: var(--ink-soft);
 }
 li.success {

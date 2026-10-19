@@ -139,8 +139,8 @@ h1 {
     color: var(--ink-soft);
     background: var(--paper-2);
     border: none;
-    border-radius: 7px 7px 0 0;
-    box-shadow: inset 0 -5px 6px -5px rgb(60 40 20 / 0.35);
+    border-radius: var(--radius-tab) var(--radius-tab) 0 0;
+    box-shadow: var(--shadow-tab);
     cursor: pointer;
     transition: color var(--dur-quick) ease-out;
 }

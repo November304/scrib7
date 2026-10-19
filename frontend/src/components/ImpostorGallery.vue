@@ -222,7 +222,7 @@ const drawings = computed(() =>
     top: 28%;
     left: 50%;
     padding: 0.4rem 0.9rem;
-    font-size: 1.375rem;
+    font-size: var(--fs-title);
     font-weight: 800;
     line-height: 1;
     color: var(--red);
@@ -246,7 +246,7 @@ const drawings = computed(() =>
 }
 .name {
     overflow: hidden;
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -276,7 +276,7 @@ const drawings = computed(() =>
         width: 100%;
     }
     .verdict-stamp {
-        font-size: 1rem;
+        font-size: var(--fs-body);
     }
 }
 </style>

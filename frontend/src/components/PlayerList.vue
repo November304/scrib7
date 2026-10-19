@@ -115,7 +115,7 @@ li:nth-child(even) .print {
 }
 .name {
     overflow: hidden;
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
     font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -137,7 +137,7 @@ li.me .name {
 }
 .tag {
     padding: 0 0.35rem;
-    font-size: 0.8125rem;
+    font-size: var(--fs-small);
     background: var(--paper-2);
     border: 1px solid var(--line);
     border-radius: var(--radius-paper);
@@ -146,7 +146,7 @@ li.me .name {
     display: flex;
     flex: none;
     gap: 0.3rem;
-    font-size: 1.15rem;
+    font-size: var(--fs-lead);
 }
 .state {
     display: inline-flex;

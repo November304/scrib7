@@ -64,7 +64,7 @@ function join() {
 .big {
     min-height: 52px;
     padding: 0.9rem 1.6rem;
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
 }
 
 .ticket {
@@ -104,8 +104,8 @@ function join() {
 .code-input {
     width: calc(9.4ch + 3px);
     padding: 0 0 0 0.4ch;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.6rem;
+    font-family: var(--font-ticket);
+    font-size: var(--fs-mark);
     font-weight: 700;
     letter-spacing: 0.8ch;
     text-transform: uppercase;

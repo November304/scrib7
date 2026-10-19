@@ -43,7 +43,7 @@ async function logout() {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.75rem;
+    font-size: var(--fs-mark);
     font-weight: 800;
     line-height: 1;
     color: var(--ink);
@@ -61,7 +61,8 @@ async function logout() {
     margin-left: 0.08em;
     font-size: 0.8em;
     color: var(--red);
-    background: url('/assets/scrapbook/stamp-ring.svg') 0 0 / 100%;
+    background: var(--paper) url('/assets/scrapbook/stamp-ring.svg') 0 0 / 100%;
+    border-radius: 50%;
     rotate: -8deg;
 }
 .user {
@@ -70,7 +71,7 @@ async function logout() {
     gap: 0.6rem;
 }
 .name {
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
     font-weight: 700;
 }
 main {

@@ -171,7 +171,7 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
     margin: 0;
 }
 .waiting {
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
     color: var(--ink-soft);
 }
 .settings {
@@ -187,7 +187,7 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
     font-weight: 700;
 }
 .round {
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
     font-weight: 700;
     color: var(--ink-soft);
 }
@@ -217,7 +217,6 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
     width: 0.75em;
     height: 1.1em;
     border-bottom: 3px solid var(--ink);
-    border-radius: 0 0 2px 2px;
 }
 .hint .shown {
     min-width: 0.75em;
@@ -232,7 +231,7 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
     gap: 0;
 }
 .timer small {
-    font-size: 0.75rem;
+    font-size: var(--fs-small);
     line-height: 1;
 }
 .timer.urgent {

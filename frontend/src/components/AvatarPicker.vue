@@ -79,7 +79,7 @@ const hat = defineModel<HatId | null>('hat', { required: true })
 .caption {
     max-width: 100%;
     overflow: hidden;
-    font-size: 1rem;
+    font-size: var(--fs-body);
     text-overflow: ellipsis;
     white-space: nowrap;
 }

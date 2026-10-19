@@ -123,7 +123,7 @@ const rankOf = (i: number) => (i === 0 ? '1er' : `${i + 1}e`)
     margin: 0;
 }
 .waiting {
-    font-size: 1.375rem;
+    font-size: var(--fs-title);
 }
 .choices {
     display: flex;
@@ -181,7 +181,7 @@ const rankOf = (i: number) => (i === 0 ? '1er' : `${i + 1}e`)
     background-image: url('/assets/scrapbook/tape-3.svg');
 }
 .choice strong {
-    font-size: 1.25rem;
+    font-size: var(--fs-title);
     line-height: 1.2;
 }
 /* Survol : le papier se soulève et se redresse à moitié */
@@ -198,7 +198,7 @@ const rankOf = (i: number) => (i === 0 ? '1er' : `${i + 1}e`)
 }
 
 .was {
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
     color: var(--ink-soft);
 }
 .reveal {
@@ -253,13 +253,13 @@ const rankOf = (i: number) => (i === 0 ? '1er' : `${i + 1}e`)
 }
 .ranking li.first {
     min-height: 3.5rem;
-    font-size: 1.125rem;
+    font-size: var(--fs-lead);
 }
 /* Tampon « 1er » : il tape une fois */
 .rank.stamp {
     width: 48px;
     height: 48px;
-    font-size: 1rem;
+    font-size: var(--fs-body);
     animation: stamp var(--dur-stamp) ease-out both;
     animation-delay: var(--dur-settle);
 }
@@ -285,7 +285,7 @@ const rankOf = (i: number) => (i === 0 ? '1er' : `${i + 1}e`)
         padding: 0.7rem 0.5rem 0.5rem;
     }
     .choice strong {
-        font-size: 1rem;
+        font-size: var(--fs-body);
     }
     .sheet > p.muted {
         display: none;

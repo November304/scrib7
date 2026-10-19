@@ -227,7 +227,7 @@ async function copyInvite() {
     border-radius: 50%;
 }
 .code {
-    font-size: 2rem;
+    font-size: var(--fs-mark);
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: 0.2em;
