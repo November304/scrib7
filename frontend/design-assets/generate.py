@@ -216,7 +216,7 @@ def main():
     texture(
         seed=17,
         base=(196, 165, 122),
-        mottle_amp=0.035,
+        mottle_amp=0.016,
         grain_amp=0.022,
         fiber_count=320,
         fiber_colors=[((118, 88, 54), (35, 75)), ((236, 214, 172), (35, 70))],

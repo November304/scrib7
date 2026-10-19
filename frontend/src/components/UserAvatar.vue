@@ -25,7 +25,7 @@ const hatY = computed(() => headTop(props.user.avatar) - 17)
     >
         <image v-if="src" :href="src" width="64" height="64" />
         <template v-else>
-            <!-- Même style que les avatars dessinés : fond sombre, liseré et initiales néon -->
+            <!-- Sans avatar : initiales à l'encre de couleur sur une fiche papier -->
             <rect width="64" height="64" class="initials-bg" />
             <rect x="1" y="1" width="62" height="62" fill="none" :stroke="color" stroke-width="2" />
             <text
@@ -46,10 +46,10 @@ const hatY = computed(() => headTop(props.user.avatar) - 17)
 
 <style scoped>
 .avatar {
+    display: block;
     flex-shrink: 0;
-    border-radius: var(--radius-sm);
 }
 .initials-bg {
-    fill: var(--surface);
+    fill: var(--paper-2);
 }
 </style>

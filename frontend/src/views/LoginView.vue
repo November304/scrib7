@@ -49,9 +49,7 @@ async function submit() {
 
 <template>
     <div class="card auth">
-        <h1>Dessine. Devine. <span class="accent">Démasque.</span></h1>
-        <p class="muted">Rejoins une partie en invité, ou crée un compte pour garder tes stats.</p>
-
+        <!-- Intercalaires de classeur qui dépassent du haut de la fiche -->
         <div class="tabs" role="tablist">
             <button
                 v-for="tab in TABS"
@@ -64,6 +62,9 @@ async function submit() {
                 {{ tab.label }}
             </button>
         </div>
+
+        <h1>Dessine. Devine. Démasque.</h1>
+        <p class="intro">Rejoins une partie en invité, ou crée un compte pour garder tes stats.</p>
 
         <form @submit.prevent="submit">
             <label>
@@ -108,58 +109,67 @@ async function submit() {
 </template>
 
 <style scoped>
+/* Fiche de bibliothèque : intercalaires en haut, filet rouge sous l'en-tête */
 .auth {
-    max-width: 420px;
-    margin: 3rem auto 0;
+    max-width: 460px;
+    margin: 4.5rem auto 0;
+    border-top-left-radius: 0;
 }
 h1 {
-    margin: 0 0 0.5rem;
-    font-size: 1.8rem;
-    line-height: 1.15;
+    margin-bottom: 0.4rem;
 }
-h1 .accent {
-    text-shadow: var(--accent-text-glow);
+.intro {
+    margin: 0 0 1.25rem;
+    padding-bottom: 1rem;
+    color: var(--ink-soft);
+    border-bottom: 2px solid var(--red);
 }
 .tabs {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
     display: flex;
-    gap: 4px;
-    margin: 1.25rem 0;
-    padding: 4px;
-    background: var(--surface-2);
-    border-radius: var(--radius);
+    gap: 3px;
 }
 .tabs button {
-    flex: 1;
-    min-width: 0;
-    padding: 0.5rem 0.25rem;
+    min-height: 44px;
+    padding: 0.5rem 1.1rem 0.4rem;
     font: inherit;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: none;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: var(--paper-2);
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 7px 7px 0 0;
+    box-shadow: inset 0 -5px 6px -5px rgb(60 40 20 / 0.35);
     cursor: pointer;
-    transition:
-        color var(--transition),
-        background var(--transition);
+    transition: color var(--dur-quick) ease-out;
 }
 .tabs button:hover {
-    color: var(--text);
+    color: var(--ink);
 }
 .tabs button.active {
-    color: var(--accent);
-    background: var(--surface);
-    box-shadow: inset 0 -2px 0 var(--accent);
+    color: var(--ink);
+    background: var(--paper) var(--tex-paper);
+    background-blend-mode: multiply;
+    box-shadow: none;
 }
 form {
     display: flex;
     flex-direction: column;
-    gap: 0.9rem;
+    gap: 1rem;
 }
 label {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-    font-weight: 600;
+    font-weight: 700;
+}
+@media (max-width: 420px) {
+    .tabs button {
+        padding-inline: 0.7rem;
+    }
+    form .btn {
+        width: 100%;
+    }
 }
 </style>
