@@ -501,8 +501,8 @@ Deux objets volontairement **différents** :
 
 ## Known Gaps
 
-- Les avatars existants (fond bleu nuit et halo cyan) appartiennent au thème néon et sont conservés
-  tels quels à la demande du client ; dans un tirage photo ils se lisent comme des photos de nuit.
-  À revoir si le contraste avec le kraft gêne.
-- Les icônes dessinées et les textures seront produites en phase 4 ; d'ici là, les composants
-  utilisent des formes CSS de repli.
+- Les avatars animaux ont un fond papier `--paper-2` (l'ancien fond bleu nuit et son halo néon
+  ont été retirés) ; les animaux eux-mêmes gardent leurs couleurs d'origine.
+- Le message de victoire envoyé par le serveur contient un emoji 🏆 (texte backend, hors périmètre).
+- Les pastilles de couleur de la boîte à outils sont annoncées par leur code hexadécimal ; des noms
+  en français seraient plus accessibles.
