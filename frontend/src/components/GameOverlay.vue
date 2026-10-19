@@ -94,7 +94,7 @@ const rankOf = (i: number) => (i === 0 ? '1er' : `${i + 1}e`)
     place-items: center;
     padding: 1rem;
     overflow: auto;
-    background: rgb(42 31 22 / 0.2);
+    background: rgb(168 135 88 / 0.22); /* voile kraft, pas gris */
 }
 /* Fiche bristol posée sur le tableau : elle glisse et se cale */
 .sheet {
