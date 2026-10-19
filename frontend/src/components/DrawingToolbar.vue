@@ -151,38 +151,52 @@ defineEmits<{ undo: []; clear: [] }>()
 </template>
 
 <style scoped>
+/* Bande de papier sous le tableau */
 .toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
+    gap: 0.75rem 1.5rem;
     align-items: center;
-    padding: 0.6rem 0.75rem;
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    padding: 0.75rem 1rem;
+    background: var(--paper-2) var(--tex-paper);
+    background-blend-mode: multiply;
+    border-radius: var(--radius-paper);
+    box-shadow: var(--shadow-sheet);
 }
 .colors {
     display: grid;
-    grid-template-columns: repeat(8, 24px);
-    gap: 4px;
+    grid-template-columns: repeat(8, 28px);
+    gap: 6px;
 }
+/* Pastilles rondes, comme des gouttes de peinture */
 .swatch {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     padding: 0;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
+    border: none;
+    border-radius: 50%;
+    box-shadow:
+        inset 0 0 0 1.5px rgb(42 31 22 / 0.22),
+        0 1px 1px rgb(60 40 20 / 0.25);
     cursor: pointer;
+    transition: scale var(--dur-quick) ease-out;
+}
+.swatch:hover {
+    scale: 1.1;
 }
 .swatch.active {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--ink);
     outline-offset: 2px;
-    box-shadow: var(--accent-glow);
 }
 .swatch.custom {
     position: relative;
     overflow: hidden;
+    /* Seul dégradé autorisé : il montre qu'on peut choisir n'importe quelle couleur */
     background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+}
+.swatch.custom:focus-within {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
 }
 .swatch.custom input {
     position: absolute;
@@ -193,7 +207,7 @@ defineEmits<{ undo: []; clear: [] }>()
 .widths,
 .actions {
     display: flex;
-    gap: 4px;
+    gap: 6px;
 }
 .actions {
     margin-left: auto;
@@ -204,27 +218,45 @@ defineEmits<{ undo: []; clear: [] }>()
     width: 40px;
     height: 40px;
     padding: 0;
-    color: var(--text);
-    background: var(--surface-2);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
+    color: var(--ink);
+    background: var(--paper-bright);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-btn);
     cursor: pointer;
     transition:
-        color var(--transition),
-        border-color var(--transition),
-        box-shadow var(--transition);
+        background-color var(--dur-quick) ease-out,
+        border-color var(--dur-quick) ease-out;
 }
 .tool:hover {
-    color: var(--accent);
-    border-color: var(--accent);
+    background: var(--paper);
 }
 .tool.active {
-    color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: var(--accent-glow);
+    color: var(--blue);
+    background: var(--paper);
+    border: 2px solid var(--blue);
+}
+.tool.danger {
+    color: var(--red);
 }
 .tool.danger:hover {
-    color: var(--danger);
-    border-color: var(--danger);
+    border-color: var(--red);
+}
+
+/* Au doigt : pastilles et outils de 44px */
+@media (pointer: coarse) {
+    .colors {
+        grid-template-columns: repeat(auto-fill, 44px);
+        width: 100%;
+    }
+    .swatch,
+    .tool {
+        width: 44px;
+        height: 44px;
+    }
+}
+@media (max-width: 600px) {
+    .actions {
+        margin-left: 0;
+    }
 }
 </style>
