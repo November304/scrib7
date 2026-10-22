@@ -37,13 +37,26 @@ backend/
   src/classic.js     mode classique : tours, choix du mot, devinettes, indices, barème
   src/impostor.js    mode Imposteur : dessins secrets, vote, barème
   src/words.js       mots par difficulté + paires de mots proches pour l'Imposteur
+  src/avatars.js     liste des avatars et couvre-chefs autorisés
+  src/prisma.js      client Prisma partagé (accès à la base SQLite)
+frontend/
+  index.html         page unique dans laquelle Vue monte l'application
+  public/            fichiers servis tels quels : avatars, couvre-chefs, textures et icônes
 frontend/src/
+  main.ts            point d'entrée : crée l'app Vue, branche Pinia et le routeur
+  router.ts          routes /login, /, /room/:code + redirection si non connecté
+  api.ts             appels HTTP vers /api (fetch)
+  types.ts           types partagés (joueur, trait, état de partie…)
+  utils.ts, fill.ts  fonctions utilitaires, algorithme du pot de peinture
+  avatars.ts         avatars et couvre-chefs (synchronisé avec backend/src/avatars.js)
+  assets/main.css    thème global : variables CSS, typo, classes communes
   services/socket.ts connexion WebSocket unique avec reconnexion automatique
   stores/            Pinia : auth (utilisateur courant), room (état de la salle)
   views/             Login, Home, Room
-  components/        DrawingBoard (SVG), DrawingToolbar, PlayerList, ChatBox, UserAvatar,
-                     GameHeader (mode, manche, mot/indice, minuteur), GameOverlay (choix du mot,
-                     résultats), ImpostorGallery (dessins de tous les joueurs + vote)
+  components/        DrawingBoard (SVG), StrokeShape, DrawingToolbar, PlayerList, ChatBox,
+                     UserAvatar, AvatarPicker, DifficultyTag, GameHeader (mode, manche,
+                     mot/indice, minuteur), GameOverlay (choix du mot, résultats),
+                     ImpostorGallery (dessins de tous les joueurs + vote)
 ```
 
 ## Protocole WebSocket

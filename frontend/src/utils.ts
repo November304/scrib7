@@ -1,7 +1,7 @@
 import { onBeforeUnmount, ref } from 'vue'
 import type { Difficulty, Point } from '@/types'
 
-// Fond du tableau (= --canvas) : le dessin, la gomme et le pot de peinture partagent cette couleur
+// Fond du tableau : le dessin, la gomme et le pot de peinture partagent cette couleur
 export const CANVAS_COLOR = '#fbf7ee'
 
 // Encre de couleur stable dérivée d'un identifiant (initiales des avatars, ≥ 4.5:1 sur papier)
