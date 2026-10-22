@@ -1,6 +1,8 @@
 // Ce qui est commun à tous les modes de jeu : réglages, minuteurs, scores, début et fin de partie.
 // Chaque mode (classic.js, impostor.js) hérite de BaseGame et décrit ses propres phases.
 
+import { saveGame } from './history.js'
+
 export const ROUNDS = { min: 1, max: 10, default: 3 }
 export const DRAW_TIME = { min: 30, max: 180, default: 80 } // secondes
 
@@ -16,6 +18,7 @@ export class BaseGame {
         this.scores = new Map() // userId -> points
         this.deadline = 0
         this.timers = []
+        this.startedAt = null
     }
 
     get mode() {
@@ -84,6 +87,7 @@ export class BaseGame {
         }
         this.scores = new Map([...this.room.players.keys()].map((id) => [id, 0]))
         this.round = 1
+        this.startedAt = new Date()
         this.room.broadcast(systemMessage('La partie commence !'))
         this.begin()
     }
@@ -111,6 +115,8 @@ export class BaseGame {
             )
         }
         this.broadcastState()
+        // Une erreur de base de données ne doit pas interrompre le jeu
+        saveGame(this).catch((err) => console.error("Échec de l'enregistrement de la partie", err))
     }
 
     // Retour au salon (plus assez de joueurs)

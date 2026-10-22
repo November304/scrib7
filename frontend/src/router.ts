@@ -9,6 +9,12 @@ const router = createRouter({
         { path: '/', name: 'home', component: HomeView, meta: { requiresAuth: true } },
         { path: '/login', name: 'login', component: LoginView },
         {
+            path: '/history',
+            name: 'history',
+            component: () => import('@/views/HistoryView.vue'),
+            meta: { requiresAuth: true },
+        },
+        {
             // /room/new crée une salle, /room/ABCDE rejoint une salle existante
             path: '/room/:code',
             name: 'room',

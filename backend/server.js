@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import { createServer } from 'http'
 import { fileURLToPath } from 'url'
 import { authRouter } from './src/auth.js'
+import { historyRouter } from './src/history.js'
 import { attachWebSocket } from './src/ws.js'
 
 const PORT = process.env.PORT ?? 3000
@@ -17,6 +18,7 @@ app.use(express.json({ limit: '100kb' }))
 app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
+app.use('/api/games', historyRouter)
 app.use('/api', (req, res) => res.status(404).json({ error: 'Route inconnue' }))
 
 // En production, Express sert aussi le build du frontend

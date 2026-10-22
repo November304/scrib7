@@ -31,6 +31,7 @@ backend/
   server.js          Express : JSON, cookies, routes, fichiers statiques, WebSocket
   prisma/            schéma + migrations
   src/auth.js        /api/auth : register, login, guest, logout, me + middleware requireAuth
+  src/history.js     /api/games : historique des parties (enregistrement en fin de partie + routes REST)
   src/ws.js          serveur WebSocket : auth au handshake, validation et routage des messages
   src/rooms.js       salles en mémoire : joueurs, hôte, traits du dessin
   src/game.js        base commune aux modes : réglages, minuteurs, scores, début/fin de partie
@@ -44,7 +45,7 @@ frontend/
   public/            fichiers servis tels quels : avatars, couvre-chefs, textures et icônes
 frontend/src/
   main.ts            point d'entrée : crée l'app Vue, branche Pinia et le routeur
-  router.ts          routes /login, /, /room/:code + redirection si non connecté
+  router.ts          routes /login, /, /room/:code, /history + redirection si non connecté
   api.ts             appels HTTP vers /api (fetch)
   types.ts           types partagés (joueur, trait, état de partie…)
   utils.ts, fill.ts  fonctions utilitaires, algorithme du pot de peinture
@@ -52,12 +53,42 @@ frontend/src/
   assets/main.css    thème global : variables CSS, typo, classes communes
   services/socket.ts connexion WebSocket unique avec reconnexion automatique
   stores/            Pinia : auth (utilisateur courant), room (état de la salle)
-  views/             Login, Home, Room
+  views/             Login, Home, Room, History
   components/        DrawingBoard (SVG), StrokeShape, DrawingToolbar, PlayerList, ChatBox,
                      UserAvatar, AvatarPicker, DifficultyTag, GameHeader (mode, manche,
                      mot/indice, minuteur), GameOverlay (choix du mot, résultats),
                      ImpostorGallery (dessins de tous les joueurs + vote)
 ```
+
+## Historique des parties (Prisma + REST)
+
+Chaque partie menée jusqu'au bout est enregistrée par `BaseGame.endGame` (les parties
+interrompues faute de joueurs ne le sont pas, ni celles qui ne réunissent que des invités).
+
+```
+User 1 ─── n GamePlayer n ─── 1 Game
+```
+
+- `Game` : mode, code de la salle, réglages (manches, temps de dessin), début et fin.
+- `GamePlayer` : la participation d'un joueur — score, rang (ex æquo = même rang) et une copie de
+  son pseudo et de son apparence au moment de la partie. `userId` est `null` pour un invité.
+  Supprimer une partie supprime ses participations (`onDelete: Cascade`) ; supprimer un compte
+  garde ses participations dans le classement des autres (`onDelete: SetNull`).
+
+Toutes les routes exigent d'être connecté avec un compte (401 sinon, 403 pour un invité) et ne
+renvoient que les parties auxquelles on a participé.
+
+| Méthode  | Route                             | Rôle                                                       |
+| -------- | --------------------------------- | ---------------------------------------------------------- |
+| `GET`    | `/api/games?mode=&limit=&cursor=` | mes parties, des plus récentes aux plus anciennes (paginé) |
+| `GET`    | `/api/games/stats`                | parties jouées, victoires, points, par mode                |
+| `GET`    | `/api/games/:id`                  | détail d'une partie et son classement                      |
+| `DELETE` | `/api/games/:id`                  | retire la partie de mon historique (204)                   |
+
+La pagination se fait par curseur : la réponse `{ games, nextCursor }` donne l'`id` à passer en
+`cursor` pour la page suivante (`null` s'il n'y en a plus). `DELETE` ne touche pas l'historique des
+autres joueurs : la ligne reste dans le classement mais n'est plus liée au compte ; la partie n'est
+effacée que lorsque plus aucun compte n'y est rattaché.
 
 ## Protocole WebSocket
 
@@ -127,6 +158,7 @@ autres joueurs : chacun ne voit que son propre dessin jusqu'au vote.
 - [ ] Équilibrage du barème de points
 - [x] Mode Imposteur : mots secrets, dessins simultanés, vote
 - [ ] Roulette de malus, replay final animé
-- [ ] Upload d'avatar et de packs de mots, historique des parties (Prisma)
+- [x] Historique des parties (Prisma, API REST, page `/history`)
+- [ ] Upload d'avatar et de packs de mots
 - [ ] Galerie (IndexedDB), PWA, Web Component `<scribble-gallery>`
 - [ ] Déploiement Nginx + PM2

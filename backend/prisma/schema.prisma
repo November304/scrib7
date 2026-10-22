@@ -8,10 +8,44 @@ datasource db {
 }
 
 model User {
-   id           Int       @id @default(autoincrement())
-   username     String    @unique
-   passwordHash String
-   avatar       String?
-   hat          String?
-   createdAt    DateTime  @default(now())
+  id           Int          @id @default(autoincrement())
+  username     String       @unique
+  passwordHash String
+  avatar       String?
+  hat          String?
+  createdAt    DateTime     @default(now())
+  games        GamePlayer[]
+}
+
+// Une partie menée jusqu'au bout (enregistrée à la fin, jamais pendant)
+model Game {
+  id        Int          @id @default(autoincrement())
+  mode      String // "classic" | "impostor"
+  roomCode  String
+  rounds    Int
+  drawTime  Int // secondes
+  startedAt DateTime
+  endedAt   DateTime     @default(now())
+  players   GamePlayer[]
+
+  @@index([mode])
+}
+
+// Participation d'un joueur à une partie : score et classement final
+model GamePlayer {
+  id       Int     @id @default(autoincrement())
+  game     Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId   Int
+  // null pour un invité, ou pour un joueur qui a retiré la partie de son historique
+  user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId   Int?
+  // Copie de l'apparence au moment de la partie : elle reste affichée même si le compte change
+  username String
+  avatar   String?
+  hat      String?
+  score    Int
+  rank     Int // 1 = vainqueur, ex æquo = même rang
+
+  @@unique([gameId, userId])
+  @@index([userId])
 }

@@ -19,6 +19,9 @@ async function logout() {
             <span class="wordmark">Scrib<span class="seven">7</span></span>
         </RouterLink>
         <div v-if="auth.user" class="user">
+            <RouterLink v-if="!auth.user.guest" to="/history" class="btn ghost small">
+                Historique
+            </RouterLink>
             <UserAvatar :user="auth.user" :size="32" />
             <span class="hand name">{{ auth.user.username }}</span>
             <button class="btn ghost small" @click="logout">Déconnexion</button>

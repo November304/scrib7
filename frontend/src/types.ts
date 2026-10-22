@@ -103,3 +103,39 @@ export type ServerMessage =
     | { type: 'draw:all'; strokes: Stroke[] }
     | ({ type: 'game:state' } & GameState)
     | { type: 'error'; code: string; message: string }
+
+// --- Historique des parties (API REST /api/games) ---
+
+export interface GameRecordPlayer {
+    userId: number | null // null : invité, ou joueur qui a retiré la partie de son historique
+    username: string
+    avatar: string | null
+    hat: string | null
+    score: number
+    rank: number // ex æquo = même rang
+}
+
+export interface GameRecord {
+    id: number
+    mode: GameMode
+    roomCode: string
+    rounds: number
+    drawTime: number
+    startedAt: string
+    endedAt: string
+    players: GameRecordPlayer[] // du premier au dernier
+    me: GameRecordPlayer | null
+}
+
+export interface GameHistoryPage {
+    games: GameRecord[]
+    nextCursor: number | null
+}
+
+export interface GameStats {
+    played: number
+    wins: number
+    totalPoints: number
+    bestScore: number
+    byMode: Record<GameMode, { played: number; wins: number }>
+}

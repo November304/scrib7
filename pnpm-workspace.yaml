@@ -1,10 +1,10 @@
 packages:
-    - frontend
-    - backend
+  - frontend
+  - backend
 
-onlyBuiltDependencies:
-    - better-sqlite3
-    - bcrypt
-    - prisma
-    - '@prisma/engines'
-    - esbuild
+allowBuilds:
+  '@prisma/engines': true
+  bcrypt: true
+  better-sqlite3: true
+  esbuild: true
+  prisma: true
