@@ -1,4 +1,4 @@
-/* Direction « Carnet kraft » : voir DESIGN.md à la racine. Thème clair uniquement, assumé. */
+/* Direction « Carnet kraft » (scrapbook papier) : thème clair uniquement, assumé. */
 :root {
     /* Matières */
     --kraft: #c4a57a;
@@ -6,8 +6,6 @@
     --paper: #f8f1e2;
     --paper-2: #efe4cc;
     --paper-bright: #fffcf5;
-    --canvas: #fbf7ee; /* fond du dessin ET couleur de la gomme */
-    --tape: rgb(233 221 176 / 0.88);
 
     /* Encres */
     --ink: #2a1f16;
@@ -36,7 +34,6 @@
     --radius-tab: 7px; /* intercalaires de classeur */
     --tilt-slight: 0.6deg;
     --tilt-soft: 1.5deg;
-    --tilt-strong: 2.5deg;
 
     /* Profondeur : feuilles posées, ombre brune décalée vers le bas, jamais de halo */
     --shadow-sheet: 0 1px 1px rgb(60 40 20 / 0.22), 0 6px 14px -6px rgb(60 40 20 / 0.35);
@@ -45,7 +42,7 @@
     --shadow-press: 0 2px 0 var(--blue-deep);
     --shadow-tab: inset 0 -5px 6px -5px rgb(60 40 20 / 0.35); /* intercalaire rangé derrière la fiche */
 
-    /* Textures et attaches (générées par design-assets/generate.py) */
+    /* Textures (public/assets/scrapbook) */
     --tex-kraft: url('/assets/scrapbook/kraft.webp');
     --tex-paper: url('/assets/scrapbook/paper-grain.webp');
 
@@ -63,7 +60,6 @@
     :root {
         --tilt-slight: 0.3deg;
         --tilt-soft: 0.75deg;
-        --tilt-strong: 1.25deg;
     }
 }
 
@@ -223,9 +219,6 @@ a {
 .icon-crown {
     --icon: url('/assets/scrapbook/icons/crown.svg');
 }
-.icon-clock {
-    --icon: url('/assets/scrapbook/icons/clock.svg');
-}
 .icon-copy {
     --icon: url('/assets/scrapbook/icons/copy.svg');
 }
@@ -250,9 +243,6 @@ a {
 }
 .muted {
     color: var(--ink-soft);
-}
-.accent {
-    color: var(--blue);
 }
 .error {
     margin: 0;
