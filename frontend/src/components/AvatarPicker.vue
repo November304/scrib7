@@ -15,7 +15,7 @@ const hat = defineModel<HatId | null>('hat', { required: true })
                 :user="{ id: 'apercu', username: username || '?', avatar, hat }"
                 :size="88"
             />
-            <span class="muted">Aperçu</span>
+            <span class="hand caption">{{ username || 'Aperçu' }}</span>
         </div>
 
         <div class="groups">
@@ -42,7 +42,7 @@ const hat = defineModel<HatId | null>('hat', { required: true })
                 <div class="grid">
                     <label class="option" title="Aucun couvre-chef">
                         <input v-model="hat" type="radio" name="hat" :value="null" />
-                        <span class="tile none" aria-hidden="true">∅</span>
+                        <span class="tile none hand" aria-hidden="true">sans</span>
                         <span class="sr-only">Aucun couvre-chef</span>
                     </label>
                     <label v-for="h in HATS" :key="h.id" class="option" :title="h.label">
@@ -60,20 +60,28 @@ const hat = defineModel<HatId | null>('hat', { required: true })
 <style scoped>
 .picker {
     display: flex;
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: flex-start;
 }
+/* Aperçu : un tirage plus grand, légendé au stylo */
 .preview {
     display: flex;
+    flex: none;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.2rem;
     align-items: center;
-    font-size: 0.75rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    max-width: 104px;
+    padding: 6px 6px 4px;
+    background: var(--paper-bright);
+    box-shadow: var(--shadow-print);
+    rotate: calc(var(--tilt-soft) * -1);
 }
-.preview :deep(.avatar) {
-    box-shadow: var(--accent-glow);
+.caption {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: var(--fs-body);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .groups {
     display: flex;
@@ -88,14 +96,14 @@ fieldset {
     border: none;
 }
 legend {
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem;
     padding: 0;
-    font-weight: 600;
+    font-weight: 700;
 }
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 0.4rem;
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 0.5rem;
 }
 .option {
     position: relative;
@@ -106,44 +114,43 @@ legend {
     opacity: 0;
     pointer-events: none;
 }
+/* Chaque choix est un petit tirage */
 .tile {
     display: grid;
     place-items: center;
     width: 100%;
     aspect-ratio: 1;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    transition:
-        border-color var(--transition),
-        box-shadow var(--transition);
+    padding: 2px;
+    background: var(--paper-bright);
+    box-shadow: var(--shadow-print);
+    transition: translate var(--dur-quick) ease-out;
 }
 .tile.none,
 .tile.hat {
     font-weight: 700;
-    color: var(--text-muted);
-    background: var(--surface-2);
+    color: var(--ink-soft);
+    background: var(--paper-2);
+}
+.tile.none.hand {
+    font-size: var(--fs-small);
 }
 .tile.hat img {
     width: 85%;
 }
 .option:hover .tile {
-    border-color: var(--accent);
+    translate: 0 -2px;
 }
-.option input:checked + .tile {
-    border-color: var(--accent);
-    box-shadow: var(--accent-glow);
+/* Choix actif entouré au stylo bleu */
+.option:has(input:checked)::after {
+    content: '';
+    position: absolute;
+    inset: -7px -8px;
+    background: url('/assets/scrapbook/scribble-circle.svg') 0 0 / 100% 100%;
+    pointer-events: none;
 }
 .option input:focus-visible + .tile {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
 }
 
 /* Sur mobile, l'aperçu passe au-dessus des grilles */

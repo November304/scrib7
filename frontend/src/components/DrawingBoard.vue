@@ -2,6 +2,7 @@
 import { onBeforeUnmount, ref } from 'vue'
 import StrokeShape from '@/components/StrokeShape.vue'
 import { computeFill } from '@/fill'
+import { CANVAS_COLOR } from '@/utils'
 import type { DrawingTool, Point, Stroke } from '@/types'
 
 const WIDTH = 800
@@ -110,8 +111,15 @@ onBeforeUnmount(onPointerUp)
         @pointerup="onPointerUp"
         @pointercancel="onPointerUp"
     >
-        <rect :width="WIDTH" :height="HEIGHT" fill="#ffffff" />
+        <defs>
+            <pattern id="paper-grain" patternUnits="userSpaceOnUse" width="256" height="256">
+                <image href="/assets/scrapbook/paper-grain.webp" width="256" height="256" />
+            </pattern>
+        </defs>
+        <rect :width="WIDTH" :height="HEIGHT" :fill="CANVAS_COLOR" />
         <StrokeShape v-for="stroke in strokes" :key="stroke.id" :stroke="stroke" />
+        <!-- Grain du papier par-dessus les traits : la couleur de fond reste unie pour la gomme -->
+        <rect class="grain" :width="WIDTH" :height="HEIGHT" fill="url(#paper-grain)" />
     </svg>
 </template>
 
@@ -121,20 +129,21 @@ onBeforeUnmount(onPointerUp)
     width: 100%;
     height: auto;
     aspect-ratio: 4 / 3;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    border-radius: var(--radius-paper);
+    box-shadow: var(--shadow-sheet);
     cursor: crosshair;
-    transition: box-shadow var(--transition);
     touch-action: none; /* sinon le doigt fait défiler la page au lieu de dessiner */
     user-select: none;
-}
-.board:not(.disabled) {
-    box-shadow: var(--accent-glow);
 }
 .board.fill {
     cursor: cell;
 }
 .board.disabled {
     cursor: not-allowed;
+}
+.grain {
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: 0.35;
 }
 </style>

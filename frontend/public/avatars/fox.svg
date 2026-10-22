@@ -1,12 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <defs>
-        <radialGradient id="halo" cx="50%" cy="58%" r="55%">
-            <stop offset="0" stop-color="#ff7a3d" stop-opacity="0.4" />
-            <stop offset="1" stop-color="#ff7a3d" stop-opacity="0" />
-        </radialGradient>
-    </defs>
-    <rect width="64" height="64" fill="#121621" />
-    <rect width="64" height="64" fill="url(#halo)" />
+    <rect width="64" height="64" fill="#efe4cc" />
     <path d="M14 30L17 8 29 22z" fill="#f4772e" />
     <path d="M50 30L47 8 35 22z" fill="#f4772e" />
     <path d="M18 25L19.5 14 25.5 21z" fill="#1d1a24" />
@@ -18,5 +11,4 @@
     <circle cx="40" cy="32" r="3" fill="#1d1a24" />
     <circle cx="41" cy="31" r="1" fill="#fff" />
     <circle cx="32" cy="50" r="2.5" fill="#1d1a24" />
-    <rect x="1" y="1" width="62" height="62" fill="none" stroke="#ff7a3d" stroke-width="2" />
 </svg>

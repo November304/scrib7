@@ -1,11 +1,14 @@
 import { onBeforeUnmount, ref } from 'vue'
 import type { Difficulty, Point } from '@/types'
 
-// Couleur néon stable dérivée d'un identifiant (initiales des avatars, lisible sur fond sombre)
+// Fond du tableau (= --canvas) : le dessin, la gomme et le pot de peinture partagent cette couleur
+export const CANVAS_COLOR = '#fbf7ee'
+
+// Encre de couleur stable dérivée d'un identifiant (initiales des avatars, ≥ 4.5:1 sur papier)
 export function colorFromId(id: string | number) {
     let hash = 0
     for (const char of String(id)) hash = (hash * 31 + char.charCodeAt(0)) | 0
-    return `hsl(${Math.abs(hash) % 360} 75% 70%)`
+    return `hsl(${Math.abs(hash) % 360} 55% 26%)`
 }
 
 export function initials(username: string) {

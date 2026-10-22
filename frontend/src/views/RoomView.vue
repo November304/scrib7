@@ -90,13 +90,19 @@ async function copyInvite() {
         <p class="muted">Connexion à la salle…</p>
     </div>
 
-    <div v-else class="room">
+    <div v-else class="room" :class="{ 'in-lobby': !room.game || room.game.phase === 'lobby' }">
         <aside class="side">
-            <div class="panel code-panel">
+            <!-- Étiquette à bagage : le code de la salle à donner aux amis -->
+            <div class="code-panel">
                 <span class="muted">Code de la salle</span>
                 <strong class="code">{{ room.code }}</strong>
                 <button class="btn small" @click="copyInvite">
-                    {{ copied ? 'Lien copié ✓' : "Copier le lien d'invitation" }}
+                    <span
+                        class="icon"
+                        :class="copied ? 'icon-check' : 'icon-copy'"
+                        aria-hidden="true"
+                    ></span>
+                    {{ copied ? 'Lien copié' : "Copier le lien d'invitation" }}
                 </button>
             </div>
             <PlayerList
@@ -108,7 +114,9 @@ async function copyInvite() {
         </aside>
 
         <div class="stage">
-            <p v-if="socket.status.value !== 'open'" class="reconnecting">Reconnexion en cours…</p>
+            <p v-if="socket.status.value !== 'open'" class="reconnecting" role="status">
+                Reconnexion en cours…
+            </p>
             <GameHeader
                 v-if="room.game"
                 :game="room.game"
@@ -128,7 +136,7 @@ async function copyInvite() {
                 :me-id="auth.user?.id"
                 @vote="room.vote"
             />
-            <div v-else class="board-wrap">
+            <div v-else class="board-wrap taped-corners">
                 <DrawingBoard
                     :strokes="room.strokes"
                     :color="color"
@@ -171,62 +179,96 @@ async function copyInvite() {
 <style scoped>
 .room {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr) 280px;
-    gap: 1rem;
+    grid-template-columns: 260px minmax(0, 1fr) 300px;
+    gap: 1.5rem;
     align-items: start;
 }
 .side {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 .stage {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
+    min-width: 0;
 }
 .board-wrap {
     position: relative;
 }
 .chat {
-    height: min(640px, 80vh);
+    height: min(680px, 82vh);
 }
+
+/* Étiquette à bagage : coin haut coupé, œillet dessiné, légèrement de travers */
 .code-panel {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
     align-items: flex-start;
+    padding: 1rem 1rem 1rem 3rem;
+    background: var(--paper-2) var(--tex-paper);
+    background-blend-mode: multiply;
+    clip-path: polygon(1.4rem 0, 100% 0, 100% 100%, 1.4rem 100%, 0 calc(100% - 1.4rem), 0 1.4rem);
+    filter: drop-shadow(0 2px 2px rgb(60 40 20 / 0.3));
+    rotate: calc(var(--tilt-slight) * -1);
+}
+.code-panel::before {
+    content: '';
+    position: absolute;
+    top: calc(50% - 9px);
+    left: 0.9rem;
+    width: 18px;
+    height: 18px;
+    background: var(--kraft);
+    border: 3px solid var(--kraft-deep);
+    border-radius: 50%;
 }
 .code {
-    font-family: var(--font-mono);
-    font-size: 1.8rem;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    text-shadow: var(--accent-text-glow);
+    font-size: var(--fs-mark);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.2em;
 }
 .notice {
-    max-width: 420px;
+    max-width: 440px;
     margin: 3rem auto 0;
     text-align: center;
 }
 .reconnecting {
     margin: 0;
-    padding: 0.4rem 0.75rem;
-    color: var(--danger);
-    background: var(--surface);
-    border: 1px solid var(--danger);
-    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    color: var(--red);
+    background: var(--paper-bright);
+    border: 1.5px solid var(--red);
+    border-radius: var(--radius-paper);
 }
 
+/* Une colonne : bandeau → tableau → outils → chat → joueurs → code */
 @media (max-width: 1000px) {
     .room {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
     .stage {
-        order: -1;
+        order: -2;
     }
     .chat {
-        height: 320px;
+        order: -1;
+        height: 340px;
+    }
+    .side {
+        flex-direction: column-reverse;
+    }
+    /* Avant la partie, le code à partager passe en premier */
+    .in-lobby .side {
+        order: -3;
+        flex-direction: column;
+    }
+    .code-panel {
+        align-self: flex-start;
     }
 }
 </style>

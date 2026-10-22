@@ -19,7 +19,7 @@ const hasVoted = (id: Player['id']) =>
 </script>
 
 <template>
-    <section class="panel">
+    <section class="panel taped">
         <h2>
             Joueurs <span class="count">{{ players.length }}/10</span>
         </h2>
@@ -33,79 +33,133 @@ const hasVoted = (id: Player['id']) =>
                     drawing: isDrawer(player.id),
                 }"
             >
-                <UserAvatar :user="player" />
+                <span class="print">
+                    <UserAvatar :user="player" :size="40" />
+                </span>
                 <div class="info">
-                    <span class="name">{{ player.username }}</span>
-                    <span v-if="game && game.phase !== 'lobby'" class="score"
-                        >{{ game.scores[String(player.id)] ?? 0 }} pts</span
-                    >
+                    <span class="name hand">{{ player.username }}</span>
+                    <span class="meta">
+                        <span v-if="game && game.phase !== 'lobby'" class="score"
+                            >{{ game.scores[String(player.id)] ?? 0 }} pts</span
+                        >
+                        <span v-if="player.guest" class="tag">invité</span>
+                    </span>
                 </div>
-                <span v-if="isDrawer(player.id)" title="Dessine">✏️</span>
-                <span v-if="hasGuessed(player.id)" title="A trouvé">✅</span>
-                <span v-if="hasFinished(player.id)" title="A fini son dessin">✅</span>
-                <span v-if="hasVoted(player.id)" title="A voté">🗳️</span>
-                <span v-if="player.id === hostId" class="badge" title="Hôte de la salle">👑</span>
-                <span v-if="player.guest" class="tag">invité</span>
+                <!-- États : icône dessinée + texte pour les lecteurs d'écran -->
+                <span class="states">
+                    <span v-if="isDrawer(player.id)" class="state drawer" title="Dessine">
+                        <span class="icon icon-pencil" aria-hidden="true"></span>
+                        <span class="sr-only">Dessine</span>
+                    </span>
+                    <span v-if="hasGuessed(player.id)" class="state done" title="A trouvé">
+                        <span class="icon icon-check" aria-hidden="true"></span>
+                        <span class="sr-only">A trouvé</span>
+                    </span>
+                    <span
+                        v-if="hasFinished(player.id)"
+                        class="state done"
+                        title="A fini son dessin"
+                    >
+                        <span class="icon icon-check" aria-hidden="true"></span>
+                        <span class="sr-only">A fini son dessin</span>
+                    </span>
+                    <span v-if="hasVoted(player.id)" class="state" title="A voté">
+                        <span class="icon icon-ballot" aria-hidden="true"></span>
+                        <span class="sr-only">A voté</span>
+                    </span>
+                    <span v-if="player.id === hostId" class="state" title="Hôte de la salle">
+                        <span class="icon icon-crown" aria-hidden="true"></span>
+                        <span class="sr-only">Hôte de la salle</span>
+                    </span>
+                </span>
             </li>
         </ul>
     </section>
 </template>
 
 <style scoped>
+.panel {
+    padding-top: 1.25rem;
+}
 ul {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.6rem;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 li {
     display: flex;
+    gap: 0.75rem;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.35rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius-sm);
-}
-li.me {
-    background: var(--accent-soft);
+    padding: 0.3rem 0.4rem;
+    border-radius: var(--radius-paper);
 }
 li.drawing {
-    border-color: var(--accent);
-    box-shadow: var(--accent-glow);
+    background: var(--paper-2);
 }
-li.guessed {
-    background: var(--success-soft);
+/* Tirages inclinés en alternance */
+.print {
+    rotate: calc(var(--tilt-soft) * -1);
+}
+li:nth-child(even) .print {
+    rotate: var(--tilt-soft);
 }
 .info {
     display: flex;
+    flex: 1;
     flex-direction: column;
     min-width: 0;
     line-height: 1.2;
 }
-.score {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
 .name {
     overflow: hidden;
-    font-weight: 600;
+    font-size: var(--fs-lead);
+    font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* « Moi » : pseudo souligné au stylo bleu */
+li.me .name {
+    text-decoration: underline 2px var(--blue);
+    text-underline-offset: 0.15em;
+}
+.meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: var(--fs-small);
+    color: var(--ink-soft);
+}
+.score {
+    font-variant-numeric: lining-nums tabular-nums;
+}
 .tag {
-    margin-left: auto;
-    padding: 0.1rem 0.45rem;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    padding: 0 0.35rem;
+    font-size: var(--fs-small);
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-paper);
+}
+.states {
+    display: flex;
+    flex: none;
+    gap: 0.3rem;
+    font-size: var(--fs-lead);
+}
+.state {
+    display: inline-flex;
+    color: var(--ink);
+}
+.state.drawer {
+    color: var(--blue);
+}
+.state.done {
+    color: var(--green);
 }
 .count {
     font-weight: 400;
-    color: var(--text-muted);
+    color: var(--ink-soft);
 }
 </style>

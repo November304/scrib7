@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { DIFFICULTY_LABELS, useNow } from '@/utils'
+import DifficultyTag from '@/components/DifficultyTag.vue'
+import { useNow } from '@/utils'
 import type { GameMode, GameState, Player } from '@/types'
 
 const ROUNDS = [1, 2, 3, 4, 5, 6, 8, 10]
@@ -41,7 +42,7 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
 </script>
 
 <template>
-    <div class="game-header">
+    <div class="game-header torn taped">
         <template v-if="inLobby">
             <form
                 v-if="isHost"
@@ -75,11 +76,11 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
                     Il faut au moins {{ minPlayers }} joueurs pour ce mode
                 </span>
             </form>
-            <p v-else class="muted">En attente que l'hôte lance la partie…</p>
+            <p v-else class="hand waiting">En attente que l'hôte lance la partie…</p>
         </template>
 
         <template v-else>
-            <span class="round">Manche {{ game.round }}/{{ game.rounds }}</span>
+            <span class="round hand">Manche {{ game.round }}/{{ game.rounds }}</span>
 
             <div v-if="classic" class="word" aria-live="polite">
                 <template v-if="classic.phase === 'choosing'">
@@ -108,12 +109,10 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
                     </span>
                     <sup class="muted">{{ letterCount }}</sup>
                 </template>
-                <span
+                <DifficultyTag
                     v-if="classic.difficulty && classic.phase !== 'choosing'"
-                    class="difficulty"
-                    :class="classic.difficulty"
-                    >{{ DIFFICULTY_LABELS[classic.difficulty] }}</span
-                >
+                    :difficulty="classic.difficulty"
+                />
             </div>
 
             <div v-else-if="impostor" class="word" aria-live="polite">
@@ -135,115 +134,116 @@ const letterCount = computed(() => classic.value?.hint?.replace(/[^_\p{L}\p{N}]/
                 :class="{ primary: !hasFinished }"
                 @click="$emit('finish', !hasFinished)"
             >
+                <span v-if="!hasFinished" class="icon icon-check" aria-hidden="true"></span>
                 {{
                     hasFinished
                         ? `Modifier (${impostor.finished.length}/${players.length} prêts)`
-                        : "J'ai fini ✓"
+                        : "J'ai fini"
                 }}
             </button>
 
-            <span class="timer" :class="{ urgent: game.phase === 'drawing' && seconds <= 10 }">
-                ⏱ {{ seconds }}
+            <!-- Tampon du minuteur : sous 10 s il s'encre en plein et dit « vite ! » -->
+            <span
+                class="stamp timer"
+                :class="{ urgent: game.phase === 'drawing' && seconds <= 10 }"
+            >
+                <span class="sr-only">Temps restant :</span>
+                <span>{{ seconds }}<span class="sr-only"> secondes</span></span>
+                <small v-if="game.phase === 'drawing' && seconds <= 10" class="hand">vite !</small>
             </span>
         </template>
     </div>
 </template>
 
 <style scoped>
+/* Bande de papier déchirée en bas, tenue par un tape, légèrement de travers */
 .game-header {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1rem;
+    gap: 0.5rem 1.25rem;
     align-items: center;
     justify-content: space-between;
-    min-height: 3.5rem;
-    padding: 0.5rem 0.9rem;
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    min-height: 4.75rem;
+    padding: 0.6rem 1.1rem 1.1rem;
+    rotate: calc(var(--tilt-slight) * -1);
 }
 .game-header p {
     margin: 0;
 }
+.waiting {
+    font-size: var(--fs-lead);
+    color: var(--ink-soft);
+}
 .settings {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1rem;
+    gap: 0.6rem 1.25rem;
     align-items: center;
 }
 .settings label {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.5rem;
     align-items: center;
-    font-weight: 600;
-}
-select {
-    padding: 0.35rem 0.5rem;
+    font-weight: 700;
 }
 .round {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-size: var(--fs-lead);
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--ink-soft);
 }
 .word {
     display: flex;
+    flex: 1;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
+    gap: 0.4rem 0.75rem;
+    align-items: baseline;
     justify-content: center;
 }
 .word strong {
-    font-size: 1.3rem;
-    letter-spacing: 0.05em;
+    font-size: var(--fs-word);
+    font-weight: 800;
+    line-height: 1.1;
 }
+/* Indice : lettres cachées = traits d'encre, lettres révélées en gras */
 .hint {
     display: flex;
     gap: 0.3rem;
     align-items: flex-end;
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: var(--fs-word);
+    font-weight: 800;
+    line-height: 1.1;
 }
 .hint .blank {
-    width: 0.9em;
-    height: 1.4em;
-    border-bottom: 3px solid currentColor;
+    width: 0.75em;
+    height: 1.1em;
+    border-bottom: 3px solid var(--ink);
 }
 .hint .shown {
-    min-width: 0.9em;
+    min-width: 0.75em;
     text-align: center;
 }
 .hint .space {
-    width: 0.6em;
-}
-.difficulty {
-    padding: 0.1rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border: 1px solid currentColor;
-    border-radius: var(--radius-sm);
-}
-.difficulty.easy {
-    color: var(--success);
-}
-.difficulty.medium {
-    color: var(--warning);
-}
-.difficulty.hard {
-    color: var(--danger);
+    width: 0.5em;
 }
 .timer {
-    min-width: 3.5rem;
-    font-family: var(--font-mono);
-    font-size: 1.2rem;
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
-    text-align: right;
+    position: relative;
+    flex-direction: column;
+    gap: 0;
+}
+.timer small {
+    font-size: var(--fs-small);
+    line-height: 1;
 }
 .timer.urgent {
-    color: var(--danger);
-    text-shadow: var(--danger-glow);
+    color: var(--paper);
+    background-color: var(--red);
+    border-radius: 50%;
+}
+
+@media (max-width: 600px) {
+    .word {
+        order: 3;
+        flex-basis: 100%;
+    }
 }
 </style>
