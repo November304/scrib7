@@ -43,6 +43,8 @@ backend/
 frontend/
   index.html         page unique dans laquelle Vue monte l'application
   public/            fichiers servis tels quels : avatars, couvre-chefs, textures et icônes
+  public/manifest.webmanifest, public/sw.js
+                     PWA : manifeste (installation) et service worker (cache de la coquille)
 frontend/src/
   main.ts            point d'entrée : crée l'app Vue, branche Pinia et le routeur
   router.ts          routes /login, /, /room/:code, /history + redirection si non connecté
@@ -52,6 +54,7 @@ frontend/src/
   avatars.ts         avatars et couvre-chefs (synchronisé avec backend/src/avatars.js)
   assets/main.css    thème global : variables CSS, typo, classes communes
   services/socket.ts connexion WebSocket unique avec reconnexion automatique
+  services/pwa.ts    enregistrement du service worker, bouton d'installation, état hors ligne
   stores/            Pinia : auth (utilisateur courant), room (état de la salle)
   views/             Login, Home, Room, History
   components/        DrawingBoard (SVG), StrokeShape, DrawingToolbar, PlayerList, ChatBox,

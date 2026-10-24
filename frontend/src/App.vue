@@ -1,10 +1,26 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { canInstall, install, online } from '@/services/pwa'
 import UserAvatar from '@/components/UserAvatar.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
+
+// Ouverte hors ligne (coquille servie par le service worker), l'app n'a pas pu joindre
+// /api/auth/me et aucune page ne s'affiche : on le signale, et on recharge au retour du réseau
+const unreachable = ref(false)
+router.onError(() => {
+    if (router.currentRoute.value.matched.length === 0) unreachable.value = true
+})
+watch(online, (isOnline) => {
+    if (isOnline && unreachable.value) location.reload()
+})
+
+function reload() {
+    location.reload()
+}
 
 async function logout() {
     await auth.logout()
@@ -18,6 +34,9 @@ async function logout() {
             <img src="/logo.svg" alt="" width="36" height="36" />
             <span class="wordmark">Scrib<span class="seven">7</span></span>
         </RouterLink>
+        <button v-if="canInstall" class="btn ghost small install" @click="install">
+            Installer l'app
+        </button>
         <div v-if="auth.user" class="user">
             <RouterLink v-if="!auth.user.guest" to="/history" class="btn ghost small">
                 Historique
@@ -28,6 +47,10 @@ async function logout() {
         </div>
     </header>
     <main>
+        <p v-if="!online || unreachable" class="offline" role="status">
+            Hors ligne : il faut une connexion pour jouer.
+            <button v-if="unreachable" class="btn small" @click="reload">Réessayer</button>
+        </p>
         <RouterView />
     </main>
 </template>
@@ -69,6 +92,9 @@ async function logout() {
     border-radius: 50%;
     rotate: -8deg;
 }
+.install {
+    margin-left: auto;
+}
 .user {
     display: flex;
     align-items: center;
@@ -83,6 +109,20 @@ main {
     margin: 0 auto;
     padding: 0 1rem 2.5rem;
 }
+.offline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    color: var(--red);
+    background: var(--paper-bright);
+    border: 1.5px solid var(--red);
+    border-radius: var(--radius-paper);
+}
 @media (min-width: 1000px) {
     .topbar,
     main {
@@ -93,7 +133,8 @@ main {
     .logo {
         font-size: var(--fs-title);
     }
-    .logo img {
+    .logo img,
+    .install {
         display: none;
     }
     .name {
