@@ -6,7 +6,8 @@
     "main": "server.js",
     "scripts": {
         "dev": "node --watch server.js",
-        "start": "NODE_ENV=production node server.js",
+        "start": "prisma migrate deploy && NODE_ENV=production node server.js",
+        "db:deploy": "prisma migrate deploy",
         "db:migrate": "prisma migrate dev",
         "db:studio": "prisma studio",
         "postinstall": "prisma generate"
