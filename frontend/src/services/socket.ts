@@ -21,7 +21,7 @@ class Socket {
         this.wanted = true
         if (this.ws && this.ws.readyState <= WebSocket.OPEN) return
         this.status.value = 'connecting'
-        this.ws = new WebSocket(`${WS_URL}/ws`)
+        this.ws = new WebSocket(`${WS_URL}`)
 
         this.ws.onopen = () => {
             this.retries = 0

@@ -34,6 +34,12 @@ app.use('/api/auth', authRouter)
 app.use('/api/games', historyRouter)
 app.use('/api', (req, res) => res.status(404).json({ error: 'Route inconnue' }))
 
+const distDir = fileURLToPath(new URL('../frontend/dist', import.meta.url))
+app.use(express.static(distDir))
+app.get('/{*splat}', (req, res, next) =>
+    res.sendFile('index.html', { root: distDir }, (err) => err && next()),
+)
+
 const server = createServer(app)
 attachWebSocket(server)
 
