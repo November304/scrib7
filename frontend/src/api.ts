@@ -1,3 +1,5 @@
+import { API_URL } from "./env";
+
 export class ApiError extends Error {
     constructor(
         public status: number,
@@ -9,7 +11,7 @@ export class ApiError extends Error {
 
 // Petit wrapper autour de fetch : JSON en entrée/sortie, erreurs HTTP -> exceptions
 export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}) {
-    const res = await fetch(`/api${path}`, {
+    const res = await fetch(`${API_URL}/api${path}`, {
         method: options.method ?? 'GET',
         headers: options.body ? { 'Content-Type': 'application/json' } : {},
         body: options.body ? JSON.stringify(options.body) : undefined,

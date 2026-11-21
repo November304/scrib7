@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import type { ServerMessage } from '@/types'
+import { WS_URL } from '@/env'
 
 type Listener = (msg: ServerMessage) => void
 export type SocketStatus = 'idle' | 'connecting' | 'open' | 'closed'
@@ -19,9 +20,8 @@ class Socket {
     connect() {
         this.wanted = true
         if (this.ws && this.ws.readyState <= WebSocket.OPEN) return
-        const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
         this.status.value = 'connecting'
-        this.ws = new WebSocket(`${protocol}://${location.host}/ws`)
+        this.ws = new WebSocket(`${WS_URL}/ws`)
 
         this.ws.onopen = () => {
             this.retries = 0
@@ -49,7 +49,7 @@ class Socket {
         this.status.value = 'idle'
     }
 
-    send(msg: { type: string; [key: string]: unknown }) {
+    send(msg: { type: string;[key: string]: unknown }) {
         if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(msg))
     }
 

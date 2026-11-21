@@ -1,0 +1,2 @@
+export const API_URL = import.meta.env.API_URL ?? `http${location.protocol === 'https:' ? 's' : ''}://${location.host}`
+export const WS_URL = API_URL.replace(/^http/, 'ws')
