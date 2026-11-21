@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { createServer } from 'http'
 import { fileURLToPath } from 'url'
@@ -12,21 +13,26 @@ if (!process.env.JWT_SECRET) {
     console.error('JWT_SECRET manquant : copie backend/.env.example vers backend/.env')
     process.exit(1)
 }
+if(!process.env.FRONTEND_URL) {
+    console.error('FRONTEND_URL manquant : copie backend/.env.example vers backend/.env')
+    process.exit(1)
+}
+
+const isProd = process.env.NODE_ENV === 'production'
 
 const app = express()
+app.set('trust proxy', 1) //En prod on est derrière le proxy de Railway donc on peut lui faire confiance
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+}))
 app.use(express.json({ limit: '100kb' }))
+
 app.use(cookieParser())
 
 app.use('/api/auth', authRouter)
 app.use('/api/games', historyRouter)
 app.use('/api', (req, res) => res.status(404).json({ error: 'Route inconnue' }))
-
-// En production, Express sert aussi le build du frontend
-const distDir = fileURLToPath(new URL('../frontend/dist', import.meta.url))
-app.use(express.static(distDir))
-app.get('/{*splat}', (req, res, next) =>
-    res.sendFile('index.html', { root: distDir }, (err) => err && next()),
-)
 
 const server = createServer(app)
 attachWebSocket(server)

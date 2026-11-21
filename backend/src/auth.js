@@ -9,6 +9,14 @@ const JWT_SECRET = process.env.JWT_SECRET
 const COOKIE_NAME = 'token'
 const MAX_AGE = 7 * 24 * 3600 * 1000 // 7 jours
 const USERNAME_RE = /^[\p{L}\p{N}_-]{3,20}$/u
+const isProd = process.env.NODE_ENV === 'production'
+
+const cookieOptions = {
+    httpOnly: true, // inaccessible depuis le JS du navigateur (protection XSS)
+    secure: isProd, // envoyé uniquement sur HTTPS en production
+    sameSite: isProd ? 'none' : 'lax', // non envoyé par les requêtes cross-site (protection CSRF)
+    maxAge: MAX_AGE,
+}
 
 // Le contenu du JWT : c'est aussi ce que voient les autres joueurs
 export function signToken(user) {
@@ -37,12 +45,7 @@ export function verifyToken(token) {
 }
 
 function setTokenCookie(res, user) {
-    res.cookie(COOKIE_NAME, signToken(user), {
-        httpOnly: true, // inaccessible depuis le JS du navigateur (protection XSS)
-        sameSite: 'lax', // non envoyé par les requêtes cross-site (protection CSRF)
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: MAX_AGE,
-    })
+    res.cookie(COOKIE_NAME, signToken(user), { ...cookieOptions, maxAge: MAX_AGE })
 }
 
 export function tokenFromCookies(cookies) {
@@ -134,7 +137,7 @@ authRouter.post('/guest', (req, res) => {
 })
 
 authRouter.post('/logout', (req, res) => {
-    res.clearCookie(COOKIE_NAME)
+    res.clearCookie(COOKIE_NAME, cookieOptions)
     res.status(204).end()
 })
 

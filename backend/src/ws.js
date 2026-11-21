@@ -163,6 +163,11 @@ export function attachWebSocket(server) {
     // automatiquement par le navigateur avec la requête d'upgrade
     server.on('upgrade', (req, socket, head) => {
         const { pathname } = new URL(req.url, 'http://localhost')
+        if(process.env.FRONTEND_URL !== req.headers.origin) { //Pas de cors sur les websockets donc on le fait nous meme
+            socket.write('HTTP/1.1 403 Forbidden\r\n\r\n')
+            socket.destroy()
+            return
+        }
         const user = verifyToken(tokenFromCookies(parseCookie(req.headers.cookie ?? '')))
         if (pathname !== '/ws' || !user) {
             socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
